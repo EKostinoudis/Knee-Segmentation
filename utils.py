@@ -174,3 +174,71 @@ def createLDict(labels, voxel, N, numOfLabels):
 def mse3D(image1, image2):
     return ((sitk.GetArrayFromImage(image1) - sitk.GetArrayFromImage(image2))**2).mean()
 
+def calculateCropShape(images, P, N, minx, maxx, miny, maxy, minz, maxz):
+    shape = [[minx - (P[0]//2 + N[0]//2), maxx + (P[0]//2 + N[0]//2)],
+             [miny - (P[1]//2 + N[1]//2), maxy + (P[1]//2 + N[1]//2)],
+             [minz - (P[2]//2 + N[2]//2), maxz + (P[2]//2 + N[2]//2)],
+            ]
+
+    copyShape = [[],[],[]]
+
+    # x range
+    if shape[0][0] < 0:
+        copyShape[0].append(0)
+    else:
+        copyShape[0].append(shape[0][0])
+
+    if shape[0][1] > images[0].shape[0] - 1:
+        copyShape[0].append(images[0].shape[0] - 1)
+    else:
+        copyShape[0].append(shape[0][1])
+
+    # y range
+    if shape[1][0] < 0:
+        copyShape[1].append(0)
+    else:
+        copyShape[1].append(shape[1][0])
+
+    if shape[1][1] > images[0].shape[1] - 1:
+        copyShape[1].append(images[0].shape[1] - 1)
+    else:
+        copyShape[1].append(shape[1][1])
+
+    #z range
+    if shape[2][0] < 0:
+        copyShape[2].append(0)
+    else:
+        copyShape[2].append(shape[2][0])
+
+    if shape[2][1] > images[0].shape[2] - 1:
+        copyShape[2].append(images[0].shape[2] - 1)
+    else:
+        copyShape[2].append(shape[2][1])
+
+    offset = []
+    offset.append(copyShape[0][0] - shape[0][0])
+    offset.append(copyShape[1][0] - shape[1][0])
+    offset.append(copyShape[2][0] - shape[2][0])
+
+    length = []
+    length.append(copyShape[0][1] - copyShape[0][0] + 1)
+    length.append(copyShape[1][1] - copyShape[1][0] + 1)
+    length.append(copyShape[2][1] - copyShape[2][0] + 1)
+
+    return (shape, copyShape, offset, length)
+
+def saveSegmentation(segmentation, originalImagePath, savePathName, copyShape, offset, length):
+    originalImage = sitk.ReadImage(originalImagePath)
+    originalImageShape = originalImage.GetSize()[::-1]
+    finalSegmentation = np.zeros(originalImageShape, dtype='uint8')
+    finalSegmentation[copyShape[0][0]:copyShape[0][1]+1,
+                      copyShape[2][0]:copyShape[1][1]+1,
+                      copyShape[2][0]:copyShape[2][1]+1,] = \
+                            segmentation[offset[0]:offset[0]+length[0],
+                                         offset[1]:offset[1]+length[1],
+                                         offset[2]:offset[2]+length[2]]
+    finalSegmentation = sitk.GetImageFromArray(finalSegmentation)
+    finalSegmentation.CopyInformation(originalImage)
+    sitk.WriteImage(finalSegmentation, savePathName)
+    print(f"Saved segmentation for image: {originalImagePath} \
+            with the name: {savePathName}")
