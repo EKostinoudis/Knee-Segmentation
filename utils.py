@@ -232,7 +232,7 @@ def saveSegmentation(segmentation, originalImagePath, savePathName, copyShape, o
     originalImageShape = originalImage.GetSize()[::-1]
     finalSegmentation = np.zeros(originalImageShape, dtype='uint8')
     finalSegmentation[copyShape[0][0]:copyShape[0][1]+1,
-                      copyShape[2][0]:copyShape[1][1]+1,
+                      copyShape[1][0]:copyShape[1][1]+1,
                       copyShape[2][0]:copyShape[2][1]+1,] = \
                             segmentation[offset[0]:offset[0]+length[0],
                                          offset[1]:offset[1]+length[1],
@@ -240,5 +240,18 @@ def saveSegmentation(segmentation, originalImagePath, savePathName, copyShape, o
     finalSegmentation = sitk.GetImageFromArray(finalSegmentation)
     finalSegmentation.CopyInformation(originalImage)
     sitk.WriteImage(finalSegmentation, savePathName)
-    print(f"Saved segmentation for image: {originalImagePath} \
-            with the name: {savePathName}")
+    print(f"Saved segmentation for image: {originalImagePath} " \
+            + f"with the name: {savePathName}")
+
+
+def translateToOriginal(segmentation, originalImagePath, copyShape, offset, length):
+    originalImage = sitk.ReadImage(originalImagePath)
+    originalImageShape = originalImage.GetSize()[::-1]
+    finalSegmentation = np.zeros(originalImageShape, dtype='uint8')
+    finalSegmentation[copyShape[0][0]:copyShape[0][1]+1,
+                      copyShape[1][0]:copyShape[1][1]+1,
+                      copyShape[2][0]:copyShape[2][1]+1,] = \
+                            segmentation[offset[0]:offset[0]+length[0],
+                                         offset[1]:offset[1]+length[1],
+                                         offset[2]:offset[2]+length[2]]
+    return finalSegmentation
