@@ -227,7 +227,7 @@ def calculateCropShape(images, P, N, minx, maxx, miny, maxy, minz, maxz):
 
     return (shape, copyShape, offset, length)
 
-def saveSegmentation(segmentation, originalImagePath, savePathName, copyShape, offset, length):
+def saveSegmentation(segmentation, originalImagePath, savePathName, copyShape, offset, length, verbose=True):
     originalImage = sitk.ReadImage(originalImagePath)
     originalImageShape = originalImage.GetSize()[::-1]
     finalSegmentation = np.zeros(originalImageShape, dtype='uint8')
@@ -240,8 +240,9 @@ def saveSegmentation(segmentation, originalImagePath, savePathName, copyShape, o
     finalSegmentation = sitk.GetImageFromArray(finalSegmentation)
     finalSegmentation.CopyInformation(originalImage)
     sitk.WriteImage(finalSegmentation, savePathName)
-    print(f"Saved segmentation for image: {originalImagePath} " \
-            + f"with the name: {savePathName}")
+    if verbose:
+        print(f"Saved segmentation for image: {originalImagePath} " \
+                + f"with the name: {savePathName}")
 
 
 def translateToOriginal(segmentation, originalImagePath, copyShape, offset, length):
