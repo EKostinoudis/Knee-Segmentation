@@ -1303,6 +1303,7 @@ def applySPBMandSRC(np.ndarray[np.uint16_t, ndim=3] segImage,
 
                 if allSame == 1:
                     newSegmentationSPBM[x, y, z] = L[0]
+                    newSegmentationSRC[x, y, z] = L[0]
                     continue
 
                 _createA(_A, _images, v, P, N)
@@ -1455,6 +1456,7 @@ def applySPBMandSRCSpams(np.ndarray[np.uint16_t, ndim=3] segImage,
 
                 if allSame == 1:
                     newSegmentationSPBM[x, y, z] = L[0]
+                    newSegmentationSRC[x, y, z] = L[0]
                     continue
 
                 _createAFloat(_A, _images, v, P, N)
@@ -1477,7 +1479,6 @@ def applySPBMandSRCSpams(np.ndarray[np.uint16_t, ndim=3] segImage,
                         if sumArg > maxArg:
                             maxArg = sumArg
 
-                    # _alpha = Lasso(alpha=maxArg * lassoTol, positive=True, max_iter=lassoMaxIter).fit(A,B).coef_
                     alpha = spams.lasso(B, A, 
                                    return_reg_path = False, 
                                    lambda1 = maxArg * lassoTol, 
