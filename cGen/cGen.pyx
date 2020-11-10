@@ -964,9 +964,9 @@ cdef int _minResidual(uint16_t[::1,:] A, uint16_t[::1]B, uint8_t[::1] L, double[
 
     cdef double R[10]
     cdef double temp
-    cdef int i
+    cdef int i, j
 
-    for label in range(numOfLabels):
+    for label in range(numOfLabels+1):
         R[label] = 0
 
         for i in range(BLen):
@@ -980,7 +980,7 @@ cdef int _minResidual(uint16_t[::1,:] A, uint16_t[::1]B, uint8_t[::1] L, double[
     cdef double minRes = R[0]
     cdef int minPos = 0
 
-    for i in range(1, numOfLabels):
+    for i in range(1, numOfLabels+1):
         if R[i] < minRes:
             minRes = R[i]
             minPos = i
@@ -996,9 +996,9 @@ cdef int _minResidualFloat(float[::1,:] A, float[::1,:] B, uint8_t[::1] L, float
 
     cdef float R[10]
     cdef float temp
-    cdef int i
+    cdef int i, j
 
-    for label in range(numOfLabels):
+    for label in range(numOfLabels+1):
         R[label] = 0
 
         for i in range(BLen):
@@ -1012,7 +1012,7 @@ cdef int _minResidualFloat(float[::1,:] A, float[::1,:] B, uint8_t[::1] L, float
     cdef float minRes = R[0]
     cdef int minPos = 0
 
-    for i in range(1, numOfLabels):
+    for i in range(1, numOfLabels+1):
         if R[i] < minRes:
             minRes = R[i]
             minPos = i
@@ -1468,6 +1468,8 @@ def applySPBMandSRCSpams(np.ndarray[np.uint16_t, ndim=3] segImage,
                         allSame = 0
                         break
 
+                # TODO: normilize A, B
+
                 # max(A.T * B)
                 if allSame == 0:
                     maxArg = 0
@@ -1490,6 +1492,9 @@ def applySPBMandSRCSpams(np.ndarray[np.uint16_t, ndim=3] segImage,
 
                     # SRC segmentation
                     newSegmentationSRC[x, y, z] = _minResidualFloat(_A, _B, _L, _alpha, alphaLen, BLen, numOfLabels)
+
+                    if newSegmentationSRC[x, y, z] > 0:
+                        print("SRC", alpha)
                 else:
                     # SRC segmentation
                     newSegmentationSRC[x, y, z] = 0
@@ -1499,6 +1504,9 @@ def applySPBMandSRCSpams(np.ndarray[np.uint16_t, ndim=3] segImage,
 
                 # SPBM segmentation
                 newSegmentationSPBM[x, y, z] = _segmentationFloat(_alpha, _L, numOfLabels)
+
+                if newSegmentationSPBM[x, y, z] > 0:
+                    print(alpha)
 
             if verboseY:
                 print("\tTime:", time() - tstartY)
