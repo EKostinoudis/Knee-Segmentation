@@ -528,8 +528,7 @@ cdef inline uint8_t _segmentation(double[::1] w, uint8_t[::1] L,long long numOfL
 @cython.wraparound(False)
 @cython.nonecheck(False)
 @cython.cdivision(True)
-cdef inline uint8_t _segmentationFloat(float[::1] w, uint8_t[::1] L,long long numOfLabels) nogil:
-    cdef int wLen = w.shape[0]
+cdef inline uint8_t _segmentationFloat(float[::1] w, uint8_t[::1] L,long long numOfLabels, int wLen) nogil:
     cdef int i
     cdef float s = 0.
     # cdef double *sumAll = <double *> malloc(numOfLabels * sizeof(double))
@@ -747,6 +746,7 @@ def applySPBM(segImage,
     
 
 
+'''
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.nonecheck(False)
@@ -953,7 +953,7 @@ def applySPBM2(np.ndarray[np.uint16_t, ndim=3] segImage,
                 # print("X:", x, "\tTime:", time() - tstartX)
                 printf("X: %d \tTime: %f\n", x, (<double>clock() - _tstartX) / CLOCKS_PER_SEC)
     return newSegmentation
-
+'''
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -997,6 +997,7 @@ cdef int _minResidualFloat(float[::1,:] A, float[::1,:] B, uint8_t[::1] L, float
     cdef float R[10]
     cdef float temp
     cdef int i, j
+    cdef uint8_t label
 
     for label in range(numOfLabels+1):
         R[label] = 0
@@ -1350,6 +1351,7 @@ def applySPBMandSRC(np.ndarray[np.uint16_t, ndim=3] segImage,
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.nonecheck(False)
+@cython.cdivision(True)
 def applySPBMandSRCSpams(np.ndarray[np.uint16_t, ndim=3] segImage, 
                          np.ndarray[np.uint16_t, ndim=4] images, 
                          np.ndarray[np.uint8_t, ndim=4] labels,
@@ -1416,6 +1418,8 @@ def applySPBMandSRCSpams(np.ndarray[np.uint16_t, ndim=3] segImage,
     cdef float[::1,:] _B = B
 
 
+    cdef np.ndarray[np.float32_t, ndim=1] AColsSquared = np.zeros(shape=(LLen), dtype=np.single, order='F')
+
     cdef uint8_t[:, :, :, ::1] _labels = labels
     cdef uint16_t[:, :, :, ::1] _images = images
     cdef uint16_t[:, :, ::1] _segImage = segImage
@@ -1425,10 +1429,13 @@ def applySPBMandSRCSpams(np.ndarray[np.uint16_t, ndim=3] segImage,
     
     cdef int alphaLen = A.shape[1]
 
-    cdef np.ndarray[np.float32_t, ndim=1] alpha = np.zeros(shape=A.shape[1], dtype=np.single)
-    cdef float[::1] _alpha = alpha
+    # cdef np.ndarray[np.float32_t, ndim=1] alpha = np.zeros(shape=A.shape[1], dtype=np.single)
+    # cdef float[::1] _alpha = alpha
+    cdef float[::1] _alpha
 
-    cdef float maxArg, sumArg
+    cdef float maxArg, sumArg, colSum, sumSqred
+
+    cdef int ii, jj
 
 
     for x in range(xmin, xmax):
@@ -1468,10 +1475,34 @@ def applySPBMandSRCSpams(np.ndarray[np.uint16_t, ndim=3] segImage,
                         allSame = 0
                         break
 
-                # TODO: normilize A, B
-
-                # max(A.T * B)
                 if allSame == 0:
+                    # Center, normilize A
+                    # for every column
+                    for ii in range(LLen):
+                        AColsSquared[ii] = 0.
+                        colSum = 0.
+                        for jj in range(BLen):
+                            colSum += A[jj,ii]
+
+                        colSum /= BLen
+                        sumSqred = 0.
+                        for jj in range(BLen):
+                            A[jj,ii] -= colSum
+                            sumSqred += A[jj,ii] * A[jj,ii]
+
+                        if sumSqred != 0.:
+                            for jj in range(BLen):
+                                A[jj,ii] /= sumSqred 
+
+                    # Center B
+                    colSum = 0.0
+                    for ii in range(BLen):
+                        colSum += B[ii, 0]
+                    colSum /= BLen
+                    for ii in range(BLen):
+                        B[ii, 0] -= colSum
+
+                    # max(A.T * B)
                     maxArg = 0
                     for ii in range(LLen):
                         sumArg = 0
@@ -1481,32 +1512,26 @@ def applySPBMandSRCSpams(np.ndarray[np.uint16_t, ndim=3] segImage,
                         if sumArg > maxArg:
                             maxArg = sumArg
 
-                    alpha = spams.lasso(B, A, 
+
+                    _alpha = spams.lasso(B, A, 
                                    return_reg_path = False, 
                                    lambda1 = maxArg * lassoTol, 
                                    lambda2 = 0.,
                                    pos = True,
                                    mode = 2,
                                    numThreads = numThreads,
-                                  ).toarray()[:, 0]
+                                  ).A[:,0]
+
+                    # SPBM segmentation
+                    newSegmentationSPBM[x, y, z] = _segmentationFloat(_alpha, _L, numOfLabels, alphaLen)
 
                     # SRC segmentation
                     newSegmentationSRC[x, y, z] = _minResidualFloat(_A, _B, _L, _alpha, alphaLen, BLen, numOfLabels)
-
-                    if newSegmentationSRC[x, y, z] > 0:
-                        print("SRC", alpha)
                 else:
+                    # SPBM segmentation
+                    newSegmentationSPBM[x, y, z] = 0
                     # SRC segmentation
                     newSegmentationSRC[x, y, z] = 0
-
-                    for ii in range(alphaLen):
-                        _alpha[ii] = 0.
-
-                # SPBM segmentation
-                newSegmentationSPBM[x, y, z] = _segmentationFloat(_alpha, _L, numOfLabels)
-
-                if newSegmentationSPBM[x, y, z] > 0:
-                    print(alpha)
 
             if verboseY:
                 print("\tTime:", time() - tstartY)
