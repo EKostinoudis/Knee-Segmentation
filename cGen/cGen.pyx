@@ -991,14 +991,23 @@ cdef int _minResidual(uint16_t[::1,:] A, uint16_t[::1]B, uint8_t[::1] L, double[
 @cython.wraparound(False)
 @cython.nonecheck(False)
 cdef int _minResidualFloat(float[::1,:] A, float[::1,:] B, uint8_t[::1] L, float[::1] alpha, int alphaLen, int BLen, long long numOfLabels):
-    # Increment, for blas use
-    cdef int inc = 1
-
     cdef float R[10]
-    cdef float temp
+    cdef float tempR[10]
+    # cdef float temp
     cdef int i, j
     cdef uint8_t label
 
+    for i in range(BLen):
+        for label in range(numOfLabels+1):
+            tempR[label] = B[i, 0]
+
+        for j in range(alphaLen):
+            tempR[L[j]] -= A[i,j] * alpha[j]
+
+        for label in range(numOfLabels+1):
+            R[label] += sqrt(tempR[label] * tempR[label])
+
+    '''
     for label in range(numOfLabels+1):
         R[label] = 0
 
@@ -1009,6 +1018,7 @@ cdef int _minResidualFloat(float[::1,:] A, float[::1,:] B, uint8_t[::1] L, float
                     temp -= A[i,j] * alpha[j]
 
             R[label] += sqrt(temp * temp)
+    '''
 
     cdef float minRes = R[0]
     cdef int minPos = 0
@@ -1418,8 +1428,6 @@ def applySPBMandSRCSpams(np.ndarray[np.uint16_t, ndim=3] segImage,
     cdef float[::1,:] _B = B
 
 
-    cdef np.ndarray[np.float32_t, ndim=1] AColsSquared = np.zeros(shape=(LLen), dtype=np.single, order='F')
-
     cdef uint8_t[:, :, :, ::1] _labels = labels
     cdef uint16_t[:, :, :, ::1] _images = images
     cdef uint16_t[:, :, ::1] _segImage = segImage
@@ -1479,7 +1487,6 @@ def applySPBMandSRCSpams(np.ndarray[np.uint16_t, ndim=3] segImage,
                     # Center, normilize A
                     # for every column
                     for ii in range(LLen):
-                        AColsSquared[ii] = 0.
                         colSum = 0.
                         for jj in range(BLen):
                             colSum += A[jj,ii]
@@ -1512,7 +1519,6 @@ def applySPBMandSRCSpams(np.ndarray[np.uint16_t, ndim=3] segImage,
                         if sumArg > maxArg:
                             maxArg = sumArg
 
-
                     _alpha = spams.lasso(B, A, 
                                    return_reg_path = False, 
                                    lambda1 = maxArg * lassoTol, 
@@ -1530,6 +1536,7 @@ def applySPBMandSRCSpams(np.ndarray[np.uint16_t, ndim=3] segImage,
                 else:
                     # SPBM segmentation
                     newSegmentationSPBM[x, y, z] = 0
+
                     # SRC segmentation
                     newSegmentationSRC[x, y, z] = 0
 
