@@ -25,7 +25,7 @@ def resample(movingImage, fixedImage, transform, interpolator=sitk.sitkNearestNe
 
     return resampleImage.Execute(movingImage)
 
-def resampleSegmentation(labels, fixedImage, t):
+def resampleLabels(labels, fixedImage, t):
     """
     Transoforms the labels and resamples them
     based on the fixed image.
@@ -51,7 +51,7 @@ def resampleImage(movingImage, fixedImage, t):
 
     return resample.Execute(movingImage)
 
-def registration(fixedImage, movingImage, labels):
+def registration(fixedImage, movingImage, labels, numOfThreads=1):
     """ Registers moving image to the fixed.
 
     Args:
@@ -60,7 +60,7 @@ def registration(fixedImage, movingImage, labels):
         labels: Labels of the moving image, used to create a mask for the
             registration. SimpleItk image.
     Returns:
-        The result of the registration, SimpleItk image.
+        The transform of the registration.
 
     """
     initial_transform = sitk.CenteredTransformInitializer(fixedImage,
@@ -69,6 +69,9 @@ def registration(fixedImage, movingImage, labels):
                                                        sitk.CenteredTransformInitializerFilter.GEOMETRY)
 
     registration_method = sitk.ImageRegistrationMethod()
+
+    # set the number of threads
+    registration_method.SetNumberOfThreads(numOfThreads)
 
     # Create the mask
     l = sitk.GetArrayFromImage(labels)
