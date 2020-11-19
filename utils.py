@@ -51,7 +51,7 @@ def resampleImage(movingImage, fixedImage, t):
 
     return resample.Execute(movingImage)
 
-def registration(fixedImage, movingImage, labels, numOfThreads=1):
+def registration(fixedImage, movingImage, labels):
     """ Registers moving image to the fixed.
 
     Args:
@@ -69,9 +69,6 @@ def registration(fixedImage, movingImage, labels, numOfThreads=1):
                                                        sitk.CenteredTransformInitializerFilter.GEOMETRY)
 
     registration_method = sitk.ImageRegistrationMethod()
-
-    # set the number of threads
-    registration_method.SetNumberOfThreads(numOfThreads)
 
     # Create the mask
     l = sitk.GetArrayFromImage(labels)
@@ -100,6 +97,52 @@ def registration(fixedImage, movingImage, labels, numOfThreads=1):
 
     return registration_method.Execute(sitk.Cast(fixedImage, sitk.sitkFloat32), sitk.Cast(movingImage, sitk.sitkFloat32))
 
+
+def registration2(fixedImage, movingImage, labels):
+    """ Registers moving image to the fixed.
+
+    Args:
+        fixedImage: Fixed image of the registration, SimpleItk image.
+        movingImage: Fixed image of the registration, SimpleItk image.
+        labels: Labels of the moving image, used to create a mask for the
+            registration. SimpleItk image.
+    Returns:
+        The transform of the registration.
+
+    """
+    initial_transform = sitk.CenteredTransformInitializer(fixedImage,
+                                                          movingImage,
+                                                       sitk.AffineTransform(3),
+                                                       sitk.CenteredTransformInitializerFilter.GEOMETRY)
+
+    registration_method = sitk.ImageRegistrationMethod()
+
+    # Create the mask
+    l = sitk.GetArrayFromImage(labels)
+    l[l>1] = 1
+    mask = sitk.GetImageFromArray(l)
+    mask.CopyInformation(movingImage)
+
+    registration_method.SetMetricMovingMask(mask)
+
+    registration_method.SetMetricAsMeanSquares()
+
+    registration_method.SetMetricSamplingStrategy(registration_method.REGULAR) # REGULAR RANDOM NONE
+    registration_method.SetMetricSamplingPercentage(0.5)
+
+    registration_method.SetInterpolator(sitk.sitkLinear)
+
+    registration_method.SetOptimizerAsGradientDescent(learningRate=0.75, numberOfIterations=100)
+    registration_method.SetOptimizerScalesFromPhysicalShift()
+
+    final_transform = sitk.AffineTransform(initial_transform)
+
+    registration_method.SetInitialTransform(final_transform)
+    registration_method.SetShrinkFactorsPerLevel(shrinkFactors = [8,4,1])
+    registration_method.SetSmoothingSigmasPerLevel(smoothingSigmas = [4,2,0])
+    registration_method.SmoothingSigmasAreSpecifiedInPhysicalUnitsOn()
+
+    return registration_method.Execute(sitk.Cast(fixedImage, sitk.sitkFloat32), sitk.Cast(movingImage, sitk.sitkFloat32))
 
 def Dice(setA, setB, labelsNum):
     """Calculates the Dice coefficient for the two sets
@@ -259,3 +302,43 @@ def translateToOriginal(segmentation, originalImagePath, copyShape, offset, leng
                                          offset[1]:offset[1]+length[1],
                                          offset[2]:offset[2]+length[2]]
     return finalSegmentation
+
+def cropImage(image, shape, offset, length, copyShape, dtype):
+    newImage = np.zeros((shape[0][1] - shape[0][0] + 1,
+                         shape[1][1] - shape[1][0] + 1,
+                         shape[2][1] - shape[2][0] + 1,
+                        ), dtype=dtype, order="C")
+    newImage[offset[0]:offset[0]+length[0],
+             offset[1]:offset[1]+length[1],
+             offset[2]:offset[2]+length[2],] = \
+                     image[copyShape[0][0]:copyShape[0][1]+1,
+                           copyShape[1][0]:copyShape[1][1]+1,
+                           copyShape[2][0]:copyShape[2][1]+1,]
+    return newImage
+
+
+def registrationElastix(fixedImage, movingImage):
+    """ Registers moving image to the fixed using Simple Elastix.
+
+    Args:
+        fixedImage: Fixed image of the registration, SimpleItk image.
+        movingImage: Fixed image of the registration, SimpleItk image.
+    Returns:
+        The transform of the registration.
+
+    """
+    elastixImageFilter = sitk.ElastixImageFilter()
+    elastixImageFilter.SetFixedImage(fixedImage)
+    elastixImageFilter.SetMovingImage(movingImage)
+    elastixImageFilter.SetParameterMap(sitk.GetDefaultParameterMap("affine"))
+    elastixImageFilter.Execute()
+
+    transformParameterMap = elastixImageFilter.GetTransformParameterMap()[0]
+
+    transform = sitk.AffineTransform(3)
+    params = [float(i) for i in transformParameterMap.asdict()['TransformParameters']]
+    transform.SetTranslation(params[9:])
+    transform.SetMatrix(params[0:9])
+    center = [float(i) for i in transformParameterMap.asdict()['CenterOfRotationPoint']]
+    transform.SetCenter(center)
+    return transform
