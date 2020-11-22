@@ -328,6 +328,7 @@ def registrationElastix(fixedImage, movingImage):
 
     """
     elastixImageFilter = sitk.ElastixImageFilter()
+    elastixImageFilter.LogToConsoleOff()
     elastixImageFilter.SetFixedImage(fixedImage)
     elastixImageFilter.SetMovingImage(movingImage)
     elastixImageFilter.SetParameterMap(sitk.GetDefaultParameterMap("affine"))
