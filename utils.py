@@ -328,10 +328,42 @@ def registrationElastix(fixedImage, movingImage):
 
     """
     elastixImageFilter = sitk.ElastixImageFilter()
-    elastixImageFilter.LogToConsoleOff()
     elastixImageFilter.SetFixedImage(fixedImage)
     elastixImageFilter.SetMovingImage(movingImage)
     elastixImageFilter.SetParameterMap(sitk.GetDefaultParameterMap("affine"))
+    elastixImageFilter.LogToConsoleOff()
+    elastixImageFilter.SetParameter("WriteResultImage", "false")
+    elastixImageFilter.Execute()
+
+    transformParameterMap = elastixImageFilter.GetTransformParameterMap()[0]
+
+    transform = sitk.AffineTransform(3)
+    params = [float(i) for i in transformParameterMap.asdict()['TransformParameters']]
+    transform.SetTranslation(params[9:])
+    transform.SetMatrix(params[0:9])
+    center = [float(i) for i in transformParameterMap.asdict()['CenterOfRotationPoint']]
+    transform.SetCenter(center)
+    return transform
+
+
+def registrationElastix2(fixedImage, movingImage):
+    """ Registers moving image to the fixed using Simple Elastix.
+
+    Args:
+        fixedImage: Fixed image of the registration, SimpleItk image.
+        movingImage: Fixed image of the registration, SimpleItk image.
+    Returns:
+        The transform of the registration.
+
+    """
+    elastixImageFilter = sitk.ElastixImageFilter()
+    elastixImageFilter.SetFixedImage(fixedImage)
+    elastixImageFilter.SetMovingImage(movingImage)
+    elastixImageFilter.SetParameterMap(sitk.GetDefaultParameterMap("affine"))
+    elastixImageFilter.LogToConsoleOff()
+    elastixImageFilter.SetParameter("Metric", "AdvancedMeanSquares")
+    elastixImageFilter.SetParameter("MaximumNumberOfIterations", "8192")
+    elastixImageFilter.SetParameter("WriteResultImage", "false")
     elastixImageFilter.Execute()
 
     transformParameterMap = elastixImageFilter.GetTransformParameterMap()[0]
