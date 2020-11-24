@@ -375,3 +375,50 @@ def registrationElastix2(fixedImage, movingImage):
     center = [float(i) for i in transformParameterMap.asdict()['CenterOfRotationPoint']]
     transform.SetCenter(center)
     return transform
+
+
+def registrationElastixMask(fixedImage, movingImage, labels):
+    """ Registers moving image to the fixed.
+
+    Args:
+        fixedImage: Fixed image of the registration, SimpleItk image.
+        movingImage: Fixed image of the registration, SimpleItk image.
+        labels: Labels of the moving image, used to create a mask for the
+            registration. SimpleItk image.
+    Returns:
+        The transform of the registration.
+
+    """
+    # Create the mask
+    l = sitk.GetArrayFromImage(labels)
+    l[l>1] = 1
+    mask = sitk.GetImageFromArray(l)
+    mask.CopyInformation(movingImage)
+
+
+    elastixImageFilter = sitk.ElastixImageFilter()
+    elastixImageFilter.SetFixedImage(fixedImage)
+    elastixImageFilter.SetMovingImage(movingImage)
+    elastixImageFilter.AddMovingMask(mask)
+    elastixImageFilter.SetParameterMap(sitk.GetDefaultParameterMap("affine"))
+    elastixImageFilter.LogToConsoleOff()
+    elastixImageFilter.SetParameter("Metric", "AdvancedMeanSquares")
+    elastixImageFilter.SetParameter("MaximumNumberOfIterations", "8192")
+    elastixImageFilter.SetParameter("NumberOfSamplesForExactGradient", "8192")
+    elastixImageFilter.SetParameter("NumberOfSpatialSamples", "8192")
+    elastixImageFilter.SetParameter("SamplingPercentage", "0.8")
+    elastixImageFilter.SetParameter("AutomaticTransformInitialization", "true")
+    elastixImageFilter.SetParameter("ErodeMovingMask", "false")
+    elastixImageFilter.SetParameter("CheckNumberOfSamples", "false")
+    elastixImageFilter.SetParameter("WriteResultImage", "false")
+    elastixImageFilter.Execute()
+
+    transformParameterMap = elastixImageFilter.GetTransformParameterMap()[0]
+
+    transform = sitk.AffineTransform(3)
+    params = [float(i) for i in transformParameterMap.asdict()['TransformParameters']]
+    transform.SetTranslation(params[9:])
+    transform.SetMatrix(params[0:9])
+    center = [float(i) for i in transformParameterMap.asdict()['CenterOfRotationPoint']]
+    transform.SetCenter(center)
+    return transform
