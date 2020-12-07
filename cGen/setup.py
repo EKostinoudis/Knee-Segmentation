@@ -6,7 +6,7 @@ from setuptools.command.build_ext import build_ext
 ext_modules = [Extension(name="cGen",
                         sources=["cGen.pyx"],
                         language='c',
-                        extra_compile_args=['-O3'
+                        extra_compile_args=['-O3',
                                         # , '-fopenmp'
                                            ],
                         # extra_link_args=['-fopenmp'],

@@ -1369,7 +1369,7 @@ def applySPBMandSRCSpams(np.ndarray[np.uint16_t, ndim=3] segImage,
                          int[::1] P,
                          int[::1] N,
                          double lassoTol=0.01,
-                         double lassoMaxIter=1e4, 
+                         double lassoMaxIter=1e4, # Not used atm
                          bint verboseX=True, 
                          bint verboseY=True,
                          long long xmin=-1,
@@ -1378,7 +1378,8 @@ def applySPBMandSRCSpams(np.ndarray[np.uint16_t, ndim=3] segImage,
                          long long ymax=-1,
                          long long zmin=-1,
                          long long zmax=-1,
-                         long long numThreads=-1): 
+                         long long numThreads=-1,
+                         long long lassoL=-1):
     size = segImage.shape
     sizeImages = images[0].shape
     sizeLabels = labels[0].shape
@@ -1526,6 +1527,7 @@ def applySPBMandSRCSpams(np.ndarray[np.uint16_t, ndim=3] segImage,
                                    pos = True,
                                    mode = 2,
                                    numThreads = numThreads,
+                                   L = lassoL,
                                   ).A[:,0]
 
                     # SPBM segmentation

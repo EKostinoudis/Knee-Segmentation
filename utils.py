@@ -51,6 +51,65 @@ def resampleImage(movingImage, fixedImage, t):
 
     return resample.Execute(movingImage)
 
+def shrinkImage(image, factor):
+    """ Shrink image
+
+    Args:
+        image: Image to be shrinked, SimpleItk image.
+        factor: Factor of the expansion.
+        interpolator: Interpolator.
+    Returns:
+        Shrinked image.
+    """
+    if factor > 1:
+        shrinkFilter = sitk.ShrinkImageFilter()
+        shrinkFilter.SetShrinkFactor(factor)
+        return shrinkFilter.Execute(image)
+    else:
+        return image
+
+def readShrinkImage(path, factor):
+    """ Read and shrink image
+
+    Args:
+        path: Path to image.
+        factor: Factor of the expansion.
+    Returns:
+        Shrinked image.
+    """
+    return shrinkImage(sitk.ReadImage(path), factor)
+
+def expandImage(image, factor, interpolator=sitk.sitkLinear):
+    """ Expand image
+
+    Args:
+        image: Image to be expanded, SimpleItk image.
+        factor: Factor of the expansion.
+        interpolator: Interpolator.
+    Returns:
+        Expanded image.
+    """
+    if factor > 1:
+        expandFilter = sitk.ExpandImageFilter()
+        expandFilter.SetExpandFactor(factor)
+        expandFilter.SetInterpolator(interpolator)
+        return expandFilter.Execute(image)
+    else:
+        return image
+
+def readExpandImage(path, factor, interpolator=sitk.sitkLinear):
+    """ Read and shrink image
+
+    Args:
+        path: Path to image.
+        factor: Factor of the expansion.
+        interpolator: Interpolator.
+    Returns:
+        Expanded image.
+    """
+    return expandImage(sitk.ReadImage(path), factor, interpolator)
+
+
 def registration(fixedImage, movingImage, labels):
     """ Registers moving image to the fixed.
 
@@ -220,6 +279,10 @@ def createLDict(labels, voxel, N, numOfLabels):
 def mse3D(image1, image2):
     return ((sitk.GetArrayFromImage(image1) - sitk.GetArrayFromImage(image2))**2).mean()
 
+def mse3DLabels(image1, image2, labels):
+    return (((sitk.GetArrayFromImage(image1) -
+        sitk.GetArrayFromImage(image2))[sitk.GetArrayFromImage(labels) > 0])**2).mean()
+
 def calculateCropShape(images, P, N, minx, maxx, miny, maxy, minz, maxz):
     shape = [[minx - (P[0]//2 + N[0]//2), maxx + (P[0]//2 + N[0]//2)],
              [miny - (P[1]//2 + N[1]//2), maxy + (P[1]//2 + N[1]//2)],
@@ -285,7 +348,7 @@ def saveSegmentation(segmentation, originalImagePath, savePathName, copyShape, o
                                          offset[2]:offset[2]+length[2]]
     finalSegmentation = sitk.GetImageFromArray(finalSegmentation)
     finalSegmentation.CopyInformation(originalImage)
-    sitk.WriteImage(finalSegmentation, savePathName)
+    sitk.WriteImage(finalSegmentation, savePathName, True)
     if verbose:
         print(f"Saved segmentation for image: {originalImagePath} " \
                 + f"with the name: {savePathName}")
@@ -317,7 +380,7 @@ def cropImage(image, shape, offset, length, copyShape, dtype):
     return newImage
 
 
-def registrationElastix(fixedImage, movingImage):
+def registrationElastix(fixedImage, movingImage, outDir="."):
     """ Registers moving image to the fixed using Simple Elastix.
 
     Args:
@@ -330,6 +393,7 @@ def registrationElastix(fixedImage, movingImage):
     elastixImageFilter = sitk.ElastixImageFilter()
     elastixImageFilter.SetFixedImage(fixedImage)
     elastixImageFilter.SetMovingImage(movingImage)
+    elastixImageFilter.SetOutputDirectory(outDir)
     elastixImageFilter.SetParameterMap(sitk.GetDefaultParameterMap("affine"))
     elastixImageFilter.LogToConsoleOff()
     elastixImageFilter.SetParameter("WriteResultImage", "false")
@@ -346,7 +410,7 @@ def registrationElastix(fixedImage, movingImage):
     return transform
 
 
-def registrationElastix2(fixedImage, movingImage):
+def registrationElastix2(fixedImage, movingImage, outDir="."):
     """ Registers moving image to the fixed using Simple Elastix.
 
     Args:
@@ -359,6 +423,7 @@ def registrationElastix2(fixedImage, movingImage):
     elastixImageFilter = sitk.ElastixImageFilter()
     elastixImageFilter.SetFixedImage(fixedImage)
     elastixImageFilter.SetMovingImage(movingImage)
+    elastixImageFilter.SetOutputDirectory(outDir)
     elastixImageFilter.SetParameterMap(sitk.GetDefaultParameterMap("affine"))
     elastixImageFilter.LogToConsoleOff()
     elastixImageFilter.SetParameter("Metric", "AdvancedMeanSquares")
@@ -377,7 +442,7 @@ def registrationElastix2(fixedImage, movingImage):
     return transform
 
 
-def registrationElastixMask(fixedImage, movingImage, labels):
+def registrationElastixMask(fixedImage, movingImage, labels, outDir="."):
     """ Registers moving image to the fixed.
 
     Args:
@@ -400,10 +465,11 @@ def registrationElastixMask(fixedImage, movingImage, labels):
     elastixImageFilter.SetFixedImage(fixedImage)
     elastixImageFilter.SetMovingImage(movingImage)
     elastixImageFilter.AddMovingMask(mask)
+    elastixImageFilter.SetOutputDirectory(outDir)
     elastixImageFilter.SetParameterMap(sitk.GetDefaultParameterMap("affine"))
     elastixImageFilter.LogToConsoleOff()
     elastixImageFilter.SetParameter("Metric", "AdvancedMeanSquares")
-    elastixImageFilter.SetParameter("MaximumNumberOfIterations", "8192")
+    elastixImageFilter.SetParameter("MaximumNumberOfIterations", "2048")
     elastixImageFilter.SetParameter("NumberOfSamplesForExactGradient", "8192")
     elastixImageFilter.SetParameter("NumberOfSpatialSamples", "8192")
     elastixImageFilter.SetParameter("SamplingPercentage", "0.8")
