@@ -215,7 +215,7 @@ def Dice(setA, setB, labelsNum):
 
     """
     dice = []
-    for k in range(1,labelsNum+1):
+    for k in range(0,labelsNum+1):
         dice.append(np.sum(setB[setA==k]==k)*2.0 / (np.sum(setB[setB==k]==k) + np.sum(setA[setA==k]==k)))
     return dice
 
