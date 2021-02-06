@@ -1,0 +1,15 @@
+[0] Config.pm:302> INFO - This is Biber 2.9
+[0] Config.pm:305> INFO - Logfile is 'thesis.blg'
+[25] biber:313> INFO - === Σαβ Φεβ  6, 2021, 01:44:39
+[68] Biber.pm:371> INFO - Reading 'thesis.bcf'
+[127] Biber.pm:857> INFO - Found 4 citekeys in bib section 0
+[138] Biber.pm:3981> INFO - Processing section 0
+[149] Biber.pm:4154> INFO - Looking for bibtex format file 'references.bib' for section 0
+[150] bibtex.pm:1468> INFO - LaTeX decoding ...
+[155] bibtex.pm:1294> INFO - Found BibTeX data source 'references.bib'
+[183] UCollate.pm:68> INFO - Overriding locale 'el-GR' defaults 'variable = shifted' with 'variable = non-ignorable'
+[183] UCollate.pm:68> INFO - Overriding locale 'el-GR' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[183] Biber.pm:3809> INFO - Sorting list 'none/global//global/global' of type 'entry' with template 'none' and locale 'el-GR'
+[184] Biber.pm:3815> INFO - No sort tailoring available for locale 'el-GR'
+[186] bbl.pm:617> INFO - Writing 'thesis.bbl' with encoding 'UTF-8'
+[188] bbl.pm:720> INFO - Output to thesis.bbl
