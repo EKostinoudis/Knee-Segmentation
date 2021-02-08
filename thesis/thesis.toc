@@ -19,3 +19,5 @@
 \contentsline {subsection}{\numberline {2.3}Καταχώρηση εικόνας}{5}{subsection.2.3}
 \defcounter {refsection}{0}\relax 
 \contentsline {subsubsection}{\numberline {2.3.1}Μέση διαφορά τετραγώνων}{6}{subsubsection.2.3.1}
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{\numberline {2.3.2}Αλγόριθμος προσαρμοστικής στοχαστικής απότομης καθόδου}{7}{subsubsection.2.3.2}

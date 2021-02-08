@@ -1928,6 +1928,7 @@
     <bcf:citekey order="2">Lasso:1</bcf:citekey>
     <bcf:citekey order="3">Registration:1</bcf:citekey>
     <bcf:citekey order="4">Registration:2</bcf:citekey>
+    <bcf:citekey order="5">ASGD:1</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="none">

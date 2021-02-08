@@ -135,6 +135,45 @@
       \field{pages}{977\bibrangedash 1000}
       \range{pages}{24}
     \endentry
+    \entry{ASGD:1}{article}{}
+      \name{author}{4}{}{%
+        {{hash=b84e63b7f37e6ae404002b140d7ec41d}{%
+           family={Klein},
+           familyi={K\bibinitperiod},
+           given={S},
+           giveni={S\bibinitperiod}}}%
+        {{hash=7284ef1f4acae31bda8732822bb5a6d3}{%
+           family={Pluim},
+           familyi={P\bibinitperiod},
+           given={J\bibnamedelima P\bibnamedelima W},
+           giveni={J\bibinitperiod\bibinitdelim P\bibinitperiod\bibinitdelim W\bibinitperiod}}}%
+        {{hash=04f2fd3073c492470865b5d2c7ee4edb}{%
+           family={Staring},
+           familyi={S\bibinitperiod},
+           given={M},
+           giveni={M\bibinitperiod}}}%
+        {{hash=daed39aebce7a822fec865b54c1223d4}{%
+           family={Viergever},
+           familyi={V\bibinitperiod},
+           given={M\bibnamedelima A},
+           giveni={M\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+      }
+      \strng{namehash}{13d691748269e87cc4bd87a4425ead50}
+      \strng{fullhash}{fdbf6c7f96e94d535866cd19a90ade0e}
+      \strng{bibnamehash}{fdbf6c7f96e94d535866cd19a90ade0e}
+      \strng{authorbibnamehash}{fdbf6c7f96e94d535866cd19a90ade0e}
+      \strng{authornamehash}{13d691748269e87cc4bd87a4425ead50}
+      \strng{authorfullhash}{fdbf6c7f96e94d535866cd19a90ade0e}
+      \field{sortinit}{5}
+      \field{sortinithash}{3c19c3776b658b3558e9e2e4840c01e2}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{International Journal of Computer Vision}
+      \field{title}{Adaptive stochastic gradient descent optimisation for image registration.}
+      \field{year}{2009}
+      \field{pages}{227\bibrangedash 239}
+      \range{pages}{13}
+    \endentry
   \enddatalist
 \endrefsection
 \endinput
