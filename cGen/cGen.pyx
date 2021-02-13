@@ -1549,7 +1549,8 @@ def applySPBMandSRCSpams(np.ndarray[np.uint16_t, ndim=3] segImage,
                         B[ii, 0] -= colSum
                         sumSqred += B[ii, 0] * B[ii, 0]
                     if sumSqred != 0.:
-                        B[ii, 0] /= sumSqred
+                        for ii in range(BLen):
+                            B[ii, 0] /= sumSqred
 
                     # max(A.T * B)
                     maxArg = 0

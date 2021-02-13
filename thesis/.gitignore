@@ -1,0 +1,15 @@
+# ignore
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.lof
+*.log
+*.out
+*.xml
+*.bbl
+*.blg
+*.toc
+
+# allow
+!images/**
