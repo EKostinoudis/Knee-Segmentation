@@ -42,6 +42,9 @@
 % Images
 \usepackage{graphicx}
 \graphicspath{{./images/}}
+\usepackage[font={footnotesize,it}]{caption}
+\usepackage[font={footnotesize}]{subcaption}
+\renewcommand{\thesubfigure}{\Roman{subfigure}}
 
 % New page every section
 \usepackage{titlesec}
@@ -107,16 +110,6 @@ TODO: references
 
 
 \section{Θεωρητικό υπόβαθρο}
-\iffalse
-NOTES:
-    !Graph-Based Framework for Label Fusion 
-    !lasso
-    registration
-    dice, sse
-    structural similarity measure (SSIM)
-    φιλτρα
-    leave-one-out cross validation
-\fi
 
 \subsection{Πλαίσιο συγχώνευσης κατηγοριών βασισμένο σε γράφους}
 
@@ -367,6 +360,7 @@ $\gamma(t_{k+1})$ επειδή η $\gamma$ είναι γνησίων φθίνο�
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.7\textwidth]{affine}
+    \captionsetup{width=0.7\textwidth}
     \caption{Μετατόπιση, περιστροφή, αλλαγή κλίμακας και στρέβλωση ενός
     τετραγώνου.}
 \end{figure}
@@ -383,19 +377,99 @@ $\gamma(t_{k+1})$ επειδή η $\gamma$ είναι γνησίων φθίνο�
     \bm{T_{\mu}}(\bm{x}) = \bm{A}(\bm{x} - \bm{c}) + \bm{t} + \bm{c}
 \end{equation*}
 
-Όπου $\bm{t}$ είναι το διάνυσμα μετάφρασης και $\bm{c}$ το κέντρο περιστροφής.
+Όπου $\bm{t}$ είναι το διάνυσμα μετατόπισης και $\bm{c}$ το κέντρο περιστροφής.
 Επίσης, ο πίνακας $\bm{A}$ πραγματοποιεί την περιστροφή, αλλαγή κλίμακας και
 στρέβλωση. Το διάνυσμα παραμέτρων $\bm{\mu}$ θα αποτελείται από τα στοιχεία
-$a_{ij}$ του πίνακα $\bm{A}$ και το διάνυσμα μετάφρασης $\bm{t}$. Στις δύο
+$a_{ij}$ του πίνακα $\bm{A}$ και το διάνυσμα μετατόπισης $\bm{t}$. Στις δύο
 διαστάσεις ο μετασχηματισμός έχει έξι βαθμούς ελευθερίας, ενώ στις τρεις έχει
 δώδεκα.
+
+\subsubsection{Γραμμική παρεμβολή}
+
+Κατά την διαδικασία του υπολογισμού της μετρικής αξιολόγησης της κατάτμησης
+(όπως στη \ref{MSSD}), συγκρίνονται οι τιμές των αντίστοιχων σημείων της
+σταθερής εικόνας και των μετασχηματισμένων της κινούμενης. Αυτά τα
+μετασχηματισμένα σημεία της κινούμενης εικόνας μπορεί να μην ανήκουν στο πλέγμα
+της εικόνας. Γι᾽ αυτόν τον λόγο, είναι απαραίτητη η παρεμβολή των σημείων αυτών.
+
+Η γραμμική παρεμβολή υπολογίζει τον σταθμισμένο μέσο όρο των γειτονικών
+εικονοστοιχείων, χρησιμοποιώντας την απόσταση ως το βάρος.
+
+\subsubsection{Χώρος κλίμακας Gauss}
+
+Ένα πρόβλημα που συναντάται όσο αυξάνεται ο χώρος αναζήτησης της κατάτμησης,
+είναι ότι υπάρχουν μεγαλύτερες πιθανότητες να καταλήξει η βελτιστοποίηση σε
+κάποιο τοπικό ελάχιστο, με αποτέλεσμα να μην είναι καλό το αποτέλεσμα της. Ένας
+τρόπος να αυξηθεί η πιθανότητα να βρεθεί το ολικό ελάχιστο είναι να
+χρησιμοποιηθεί μία ιεραρχική διαδικασία κατά την οποία η πληροφορία των εικόνων
+θα αυξάνεται από τα αρχικά προς τα τελικά στάδια. 
+
+Ο χώρος κλίμακας Gauss είναι ένας τρόπος να επιτευχθεί το παραπάνω αποτέλεσμα
+\cite{scale_space:1}. Αυτή η μέθοδος χρησιμοποιεί τον πυρήνα Gauss για να
+μειώσει την πληροφορία μίας εικόνας. Ο πυρήνας Gauss ορίζεται για τρεις
+διαστάσεις ως:
+
+\begin{equation*}
+    g(x,y,z,t) = \frac{1} {2 \pi t} e^{\frac{-(x^2 + y^2 + z^2) }{t}}
+\end{equation*}
+
+Όπου $\sqrt{2t}$ είναι η τυπική απόκλιση του πυρήνα και $t$ το επίπεδο του χώρου
+κλίμακας. Ο πυρήνας αυτός συνελίσεται με μία εικόνα ώστε να μειωθεί η πληροφορία
+της. Αυτό γίνεται σε πολλαπλά ιεραρχικά στάδια, στα οποία αρχικά η τιμή του $t$
+είναι μεγάλη και μειώνεται σε κάθε στάδιο. Ιδανικά με αυτήν την μέθοδο, οι
+εικόνες θα έχουν ένα ελάχιστο στο αρχικό ιεραρχικό επίπεδο, το οποίο θα είναι
+κοντά στο επιθυμητό ολικό ελάχιστο. Έπειτα σε κάθε στάδιο αφού αυξάνεται η
+πληροφορία, το ελάχιστο ιδανικά θα τείνει όλο και πιο κοντά στο ολικό.
+
+\begin{figure}[h]
+    \centering
+
+    \begin{subfigure}[b]{0.4\linewidth}
+    \includegraphics[width=\linewidth]{Scalespace0.png}
+    \caption{$t=0$}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.4\linewidth}
+    \includegraphics[width=\linewidth]{Scalespace1.png}
+    \caption{$t=1$}
+    \end{subfigure}
+
+    \begin{subfigure}[b]{0.4\linewidth}
+    \includegraphics[width=\linewidth]{Scalespace2.png}
+    \caption{$t=4$}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.4\linewidth}
+    \includegraphics[width=\linewidth]{Scalespace3.png}
+    \caption{$t=16$}
+    \end{subfigure}
+
+    \begin{subfigure}[b]{0.4\linewidth}
+    \includegraphics[width=\linewidth]{Scalespace4.png}
+    \caption{$t=64$}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.4\linewidth}
+    \includegraphics[width=\linewidth]{Scalespace5.png}
+    \caption{$t=256$}
+    \end{subfigure}
+
+    \caption{Χώρος κλίμακας Gauss για διάφορες τιμές του $t$.}
+\end{figure}
+
 
 
 
 %TODO: μία εικόνα, μεταβλητές και περιγραφή τους
 
 
-%TODO: Rigid registration
+\iffalse
+NOTES:
+    !Graph-Based Framework for Label Fusion 
+    !lasso
+    registration
+    dice, sse
+    structural similarity measure (SSIM)
+    φιλτρα
+    leave-one-out cross validation
+\fi
 
 \newpage
 
