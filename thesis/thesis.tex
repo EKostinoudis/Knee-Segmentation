@@ -19,7 +19,8 @@
 \newcommand{\R}{\mathbb{R}}
 
 % Hyperlinks
-\usepackage[hidelinks]{hyperref}
+\usepackage[hidelinks, pdfencoding=auto]{hyperref}
+\renewcommand{\figureautorefname}{Σχήμα}
 
 % Font
 \usepackage{fontspec}
@@ -54,6 +55,7 @@
 \usepackage[backend=biber,style=ieee]{biblatex}
 \addbibresource{references.bib}
 % \bibliography{references} 
+\usepackage{biblatex}
 
 \usepackage[justify]{ragged2e}
 % \justifying
@@ -354,8 +356,8 @@ $\gamma(t_{k+1})$ επειδή η $\gamma$ είναι γνησίων φθίνο�
         αντιστοιχίζονται στα ακραία σημεία του μετασχηματισμένου σετ.
 \end{enumerate}
 
-Ο μετασχηματισμός αυτός πραγματοποιεί μετατόπιση, περιστροφή, αλλαγή κλίμακας
-και στρέβλωση.
+Ο αγχίγραμμος μετασχηματισμός πραγματοποιεί μετατόπιση, περιστροφή, αλλαγή
+κλίμακας και στρέβλωση.
 
 \begin{figure}[h]
     \centering
@@ -421,6 +423,10 @@ $a_{ij}$ του πίνακα $\bm{A}$ και το διάνυσμα μετατό�
 κοντά στο επιθυμητό ολικό ελάχιστο. Έπειτα σε κάθε στάδιο αφού αυξάνεται η
 πληροφορία, το ελάχιστο ιδανικά θα τείνει όλο και πιο κοντά στο ολικό.
 
+Στο \autoref{fig:tGauss} παρουσιάζεται η ίδια εικόνα για διάφορες τιμές του $t$.
+Από το σχήμα αυτό, παρατηρείται ότι όσο αυξάνεται η τιμή του $t$ τόσο μειώνεται
+και η πληροφορία στην εικόνα.
+
 \begin{figure}[h]
     \centering
 
@@ -430,31 +436,51 @@ $a_{ij}$ του πίνακα $\bm{A}$ και το διάνυσμα μετατό�
     \end{subfigure}
     \begin{subfigure}[b]{0.4\linewidth}
     \includegraphics[width=\linewidth]{Scalespace1.png}
-    \caption{$t=1$}
+    \caption{$t=0.5$}
     \end{subfigure}
 
     \begin{subfigure}[b]{0.4\linewidth}
     \includegraphics[width=\linewidth]{Scalespace2.png}
-    \caption{$t=4$}
+    \caption{$t=2$}
     \end{subfigure}
     \begin{subfigure}[b]{0.4\linewidth}
     \includegraphics[width=\linewidth]{Scalespace3.png}
-    \caption{$t=16$}
+    \caption{$t=8$}
     \end{subfigure}
 
     \begin{subfigure}[b]{0.4\linewidth}
     \includegraphics[width=\linewidth]{Scalespace4.png}
-    \caption{$t=64$}
+    \caption{$t=32$}
     \end{subfigure}
     \begin{subfigure}[b]{0.4\linewidth}
     \includegraphics[width=\linewidth]{Scalespace5.png}
-    \caption{$t=256$}
+    \caption{$t=128$}
     \end{subfigure}
 
     \caption{Χώρος κλίμακας Gauss για διάφορες τιμές του $t$.}
+    \label{fig:tGauss}
 \end{figure}
 
+\subsubsection{Δειγματοληψία συντεταγμένων εικόνας}
 
+Κατά την διαδικασία της αξιολόγησης μπορεί να χρησιμοποιηθεί η διαδικασία της
+δειγματοληψίας συντεταγμένων εικόνας ώστε να μειωθεί ο υπολογιστικός χρόνος που
+χρειάζεται για την αξιολόγηση. Στην διαδικασία αυτή επιλέγονται τυχαίες
+συντεταγμένες (σημεία στον χώρο της εικόνας) με ομοιόμορφη κατανομή, ώστε να
+χρησιμοποιηθούν για την αξιολόγηση. Μέσω παρεμβολής των συντεταγμένων αυτών
+δημιουργείται η νέα δειγματοληπτημένη εικόνα.
+
+\subsubsection{Μάσκα εικόνας}
+
+Αν μία εικόνα (είτε σταθερή, είτε κινούμενη) έχει περιοχές στις οποίες δεν
+υπάρχουν χαρακτηριστικά ενδιαφέροντος, τότε μπορεί να χρησιμοποιηθεί μία μάσκα
+εικόνας, ώστε μην να συμπεριληφθούν οι περιοχές αυτές στην διαδικασία της
+κατάτμησης. Η μάσκα εικόνας είναι μία δυαδική εικόνα, η οποία υποδεικνύει εάν
+ένα εικονοστοιχείο θα συμπεριληφθεί στην διαδικασία της κατάτμησης. Το μέγεθος
+της μάσκας είναι ίδιο με το μέγεθος της εικόνας που θα εφαρμοστεί, ώστε να
+υπάρχει αντιστοιχία μεταξύ των εικονοστοιχείων της εικόνας και των
+εικονοστοιχείων της μάσκας. Επομένως, κάθε εικονοστοιχείο της μάσκας δηλώνει εάν
+το αντίστοιχο εικονοστοιχείο της εικόνας θα χρησιμοποιηθεί στην κατάτμηση.
 
 
 %TODO: μία εικόνα, μεταβλητές και περιγραφή τους
