@@ -11,23 +11,19 @@
 \DeclareMathOperator*{\argmin}{\arg\!\min}
 \newcommand{\argminUnder}{\arg\!\min}
 \usepackage{mathtools}
-\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
-\DeclarePairedDelimiter\norm{\lVert}{\rVert}%
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}
+\DeclarePairedDelimiter\norm{\lVert}{\rVert}
 
 % R symbol
 \usepackage{amssymb}
 \newcommand{\R}{\mathbb{R}}
 
-% Hyperlinks
-\usepackage[hidelinks, pdfencoding=auto]{hyperref}
-\renewcommand{\figureautorefname}{Σχήμα}
+% For bold
+\usepackage{bm}
 
 % Font
 \usepackage{fontspec}
 \setmainfont{GFS Artemisia}
-
-% For bold
-\usepackage{bm}
 
 % English-Greek use
 \usepackage{polyglossia}
@@ -39,6 +35,13 @@
 \iffalse
 \usepackage[greek, english]{babel}
 \fi
+
+\newfontfamily\greekfont{GFS Artemisia}
+\let\greekfonttt\ttfamily
+
+% Hyperlinks
+\usepackage[hidelinks, pdfencoding=auto]{hyperref}
+\renewcommand{\figureautorefname}{Σχήμα}
 
 % Images
 \usepackage{graphicx}
@@ -55,7 +58,6 @@
 \usepackage[backend=biber,style=ieee]{biblatex}
 \addbibresource{references.bib}
 % \bibliography{references} 
-\usepackage{biblatex}
 
 \usepackage[justify]{ragged2e}
 % \justifying
@@ -482,6 +484,40 @@ $a_{ij}$ του πίνακα $\bm{A}$ και το διάνυσμα μετατό�
 εικονοστοιχείων της μάσκας. Επομένως, κάθε εικονοστοιχείο της μάσκας δηλώνει εάν
 το αντίστοιχο εικονοστοιχείο της εικόνας θα χρησιμοποιηθεί στην κατάτμηση.
 
+\subsection{Μέτρα αξιολόγησης}
+
+Τα μέτρα αξιολόγησης χρησιμοποιούνται για να αξιολογήσουν το αποτέλεσμα της
+κατάτμησης. Συγκρίνουν το αποτέλεσμα της κατάτμησης με το επιθυμητό αποτέλεσμα,
+ούτως ώστε να παράξουν μία αριθμητική αναπαράσταση της ποιότητας της κατάτμησης.
+Με αυτόν το τρόπο μπορούν να συγκριθούν διαφορετικοί αλγόριθμοι κατάτμησης και
+διαφορετικές τιμές για τον ίδιο αλγόριθμο.
+
+Η επιλογή του μέτρου ή των μέτρων αξιολόγησης έχει μεγάλη σημασία για την
+δημιουργία και τον συντονισμό (επιλογή των κατάλληλων μεταβλητών) του μοντέλου
+επειδή, είναι το μέτρο που θα χρησιμοποιηθεί για την επιλογή του καταλληλότερου
+μοντέλου. Η επιλογή αυτή ταυτίζεται με την επιθυμητή συμπεριφορά του τελικού
+μοντέλου. Για παράδειγμα, αν το επιθυμητό μοντέλο πρέπει να έχει όσο είναι
+δυνατόν πιο λίγα αληθή αρνητικά, τότε πρέπει να επιλεχθεί και το ανάλογο μέτρο
+αξιολόγησης που να ικανοποιεί τον περιορισμό αυτό.
+
+\subsubsection{Συντελεστής ομοιότητας Dice}
+
+Ο συντελεστής ομοιότητας Dice είναι μία μέτρηση που εκτιμά την ομοιότητα μεταξύ
+δύο συνόλων \cite{dice:1}. Είναι γνωστός επίσης και ως δείκτης Sørensen–Dice,
+συντελεστής Dice και F1 σκορ. Ο συντελεστής ομοιότητας Dice ορίζεται ως:
+
+\begin{equation*}
+    DSC = \frac{2 \abs{X \cap Y}} {\abs{X} + \abs{Y}}
+\end{equation*}
+
+Όπου $X$ και $Y$ είναι σύνολα, $\abs{x}$ είναι ο αριθμός των στοιχείων του
+συνόλου $x$ και $\cap$ δηλώνει την τομή δύο συνόλων.
+
+Στην αξιολόγηση της κατάτμησης εικόνας τα παραπάνω σύνολα αποτελούνται από το
+σύνολο των εικονοστοιχείων που ανήκουν σε μία κλάση. Επομένως ο συντελεστής
+αυτός υπολογίζει το ποσοστό των σημείων μίας κλάσης που επικαλύπτονται. Η
+μέγιστη τιμή του συντελεστή είναι $1$ και η ελάχιστη $0$.
+
 
 %TODO: μία εικόνα, μεταβλητές και περιγραφή τους
 
@@ -490,8 +526,8 @@ $a_{ij}$ του πίνακα $\bm{A}$ και το διάνυσμα μετατό�
 NOTES:
     !Graph-Based Framework for Label Fusion 
     !lasso
-    registration
-    dice, sse
+    !registration
+    !dice, (maybe) sse
     structural similarity measure (SSIM)
     φιλτρα
     leave-one-out cross validation

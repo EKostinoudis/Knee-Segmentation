@@ -1,4 +1,6 @@
 # ignore
+clean.sh
+*-blx.bib
 *.aux
 *.bbl
 *.bcf
