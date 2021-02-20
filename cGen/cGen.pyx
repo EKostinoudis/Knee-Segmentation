@@ -1763,7 +1763,7 @@ def applySPEP(np.ndarray[np.uint16_t, ndim=3] segImage,
                         sigmaj = 0.
                         for jj in range(BLen):
                             sigmaj += (A[jj, ii] - meanj)**2
-                        sigmaj = sqrt(sigmaj / BLen)
+                        sigmaj = sqrt(sigmaj / (BLen - 1))
 
                         ss = ((2 * meani * meanj) / (meani**2 + meanj**2)) * \
                              ((2 * sigmai * sigmaj) / (sigmai**2 + sigmaj**2))

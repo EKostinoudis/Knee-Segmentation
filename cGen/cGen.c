@@ -17898,7 +17898,7 @@ static PyObject *__pyx_pf_4cGen_18applySPEP(CYTHON_UNUSED PyObject *__pyx_self, 
  *                         sigmaj = 0.
  *                         for jj in range(BLen):             # <<<<<<<<<<<<<<
  *                             sigmaj += (A[jj, ii] - meanj)**2
- *                         sigmaj = sqrt(sigmaj / BLen)
+ *                         sigmaj = sqrt(sigmaj / (BLen - 1))
  */
             __pyx_t_40 = __pyx_v_BLen;
             __pyx_t_41 = __pyx_t_40;
@@ -17909,7 +17909,7 @@ static PyObject *__pyx_pf_4cGen_18applySPEP(CYTHON_UNUSED PyObject *__pyx_self, 
  *                         sigmaj = 0.
  *                         for jj in range(BLen):
  *                             sigmaj += (A[jj, ii] - meanj)**2             # <<<<<<<<<<<<<<
- *                         sigmaj = sqrt(sigmaj / BLen)
+ *                         sigmaj = sqrt(sigmaj / (BLen - 1))
  * 
  */
               __pyx_t_24 = __pyx_v_jj;
@@ -17920,14 +17920,14 @@ static PyObject *__pyx_pf_4cGen_18applySPEP(CYTHON_UNUSED PyObject *__pyx_self, 
             /* "cGen.pyx":1766
  *                         for jj in range(BLen):
  *                             sigmaj += (A[jj, ii] - meanj)**2
- *                         sigmaj = sqrt(sigmaj / BLen)             # <<<<<<<<<<<<<<
+ *                         sigmaj = sqrt(sigmaj / (BLen - 1))             # <<<<<<<<<<<<<<
  * 
  *                         ss = ((2 * meani * meanj) / (meani**2 + meanj**2)) * \
  */
-            __pyx_v_sigmaj = sqrt((__pyx_v_sigmaj / ((float)__pyx_v_BLen)));
+            __pyx_v_sigmaj = sqrt((__pyx_v_sigmaj / ((float)(__pyx_v_BLen - 1))));
 
             /* "cGen.pyx":1768
- *                         sigmaj = sqrt(sigmaj / BLen)
+ *                         sigmaj = sqrt(sigmaj / (BLen - 1))
  * 
  *                         ss = ((2 * meani * meanj) / (meani**2 + meanj**2)) * \             # <<<<<<<<<<<<<<
  *                              ((2 * sigmai * sigmaj) / (sigmai**2 + sigmaj**2))
