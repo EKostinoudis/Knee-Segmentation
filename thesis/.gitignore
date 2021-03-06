@@ -12,6 +12,7 @@ clean.sh
 *.bbl
 *.blg
 *.toc
+*.lot
 
 # allow
 !images/**
