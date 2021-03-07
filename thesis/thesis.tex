@@ -50,6 +50,7 @@
 \usepackage[font={footnotesize,it}]{caption}
 \usepackage[font={footnotesize}]{subcaption}
 \renewcommand{\thesubfigure}{\Roman{subfigure}}
+\usepackage{float}
 
 % New page every section
 \usepackage{titlesec}
@@ -607,7 +608,7 @@ $\sigma_{xy}$ είναι η συνδιακύμανση των σημάτων κ�
 Οι τιμές $\alpha$, $\beta$ και $\gamma$ χρησιμοποιούνται για να ορίσουν την
 επίδραση κάθε σύγκρισης.
 
-\subsection{Προεπεξεργασία δεδομένων}
+\subsection{Προεπεξεργασία δεδομένων} \label{preprocessing:1}
 
 Η προεπεξεργασία των δεδομένων αποτελεί ένα από τα πιο βασικά βήματα της
 μηχανικής μάθησης. Σε αυτό το βήμα τα δεδομένα αναλύονται και επεξεργάζονται
@@ -778,7 +779,11 @@ OAI ZIB.
 
 \subsection{Προεπεξεργασία δεδομένων}
 
-% TODO: write smthing here?
+Όπως αναφέρθηκε και στο \ref{preprocessing:1}, σκοπός της προεπεξεργασίας είναι
+να παραχθεί μία νέα εικόνα-απεικόνιση που θα έχει καλύτερα αποτελέσματα στην
+μάθηση από αυτά της αρχικής. Με τις μεθόδους που παρουσιάζονται παρακάτω
+επιθυμείτε να υπάρξει το αποτέλεσμα αυτό που θα βοηθήσει στην διαδικασία την
+εκμάθησης.
 
 \subsubsection{Απαλοιφή θορύβου εικόνας μέσω ροής της καμπυλότητας}
 
@@ -797,7 +802,7 @@ OAI ZIB.
 ότι οι ακμές των καμπυλών έχουν διατηρηθεί και σε μερικές περιπτώσεις έχουν
 αυξηθεί μετά τη χρήση της μεθόδου.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
 
     \begin{subfigure}[t]{0.4\linewidth}
@@ -823,7 +828,7 @@ OAI ZIB.
     \label{fig:curvature_flow:1}
 \end{figure}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \begin{subfigure}[t]{0.4\linewidth}
     \includegraphics[width=\linewidth]{original_2.png}
@@ -839,7 +844,7 @@ OAI ZIB.
     \label{fig:curvature_flow:2}
 \end{figure}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \begin{subfigure}[t]{0.4\linewidth}
     \includegraphics[width=\linewidth]{original_3.png}
@@ -865,7 +870,52 @@ OAI ZIB.
 περιοχές των γονάτων στην σταθερή και στην κινούμενη απεικόνιση. 
 % Με αυτόν τον τρόπο θα είναι πιο εύκολη η διαδικασία της κατάτμησης.
 
+Αν και οι απεικονίσεις προέρχονται από το ίδιο μοντέλο μαγνητικού τομογράφου,
+μπορούν να παρουσιάζουν μεταβολές στην φωτεινότητα τους. Γι᾽ αυτό το λόγο
+χρησιμοποιείται η αντιστοίχιση ιστογράμματος.
 
+Στο \autoref{fig:histogram_matching:1} παρουσιάζονται τα ιστογράμματα μίας
+απεικόνισης πριν και μετά την διαδικασία της αντιστοίχισης. Επίσης παρουσιάζεται
+και το ιστόγραμμα της σταθερή απεικόνισης. Από το διάγραμμα αυτό φαίνεται ότι η
+μεγάλη ακμή της κινούμενης απεικόνισης μετακινήθηκε προς την ακμή της σταθερής.
+Επίσης παρατηρείται ολόκληρη η καμπύλη της κινούμενης απεικόνισης να ακολουθεί
+την μεταβολή της ακμής της. Ακόμα από το \autoref{fig:histogram_matching:2}
+μπορεί να παρατηρηθεί με το μάτι διαφορά στην απεικόνιση της κινούμενης εικόνας
+πριν και μετά την αντιστοίχιση του ιστογράμματος. Το γεγονός αυτό είναι
+αναμενόμενο αφού η μεταβολή του ιστογράμματος δεν είναι μεγάλη όπως φαίνεται από
+το \autoref{fig:histogram_matching:1}.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{histogram_plot.png}
+    \caption{Ιστογράμματα σταθερής απεικόνισης και κινούμενης πριν και μετά την
+             αντιστοίχιση}
+    \label{fig:histogram_matching:1}
+\end{figure}
+
+
+\begin{figure}[H]
+    \centering
+
+    \begin{subfigure}[t]{0.4\linewidth}
+    \includegraphics[width=\linewidth]{original_moving_1.png}
+    \caption{Κινούμενη απεικόνιση πριν της αντιστοίχιση ιστογράμματος}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.4\linewidth}
+    \includegraphics[width=\linewidth]{original_moving_histogram_matching_1.png}
+    \caption{Κινούμενη απεικόνιση πριν της αντιστοίχιση ιστογράμματος}
+    \end{subfigure}
+
+    \begin{subfigure}[t]{0.4\linewidth}
+    \includegraphics[width=\linewidth]{curvature_1.png}
+    \caption{Σταθερή απεικόνιση}
+    \end{subfigure}
+
+    \caption{Τομή απεικονίσεων σταθερή και κινούμενης εικόνας πριν και μετά την
+             αντιστοίχιση ιστογράμματος.}
+    \label{fig:histogram_matching:2}
+\end{figure}
 
 
 
