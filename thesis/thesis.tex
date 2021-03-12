@@ -961,6 +961,7 @@ OAI ZIB.
 Όπου $f$ αναπαριστά το επίπεδο μείωσης της πληροφορίας και έχει τιμές για κάθε
 στάδιο $8,4,2,1$ αντίστοιχα. $s$ είναι η απόσταση των εικονοστοιχείων της
 απεικόνισης για κάθε διάσταση (μπορεί να βρεθεί στον \autoref{dataset:1}).
+\iffalse
 Επειδή η τιμή αυτή δεν είναι ίδια σε όλες τις διαστάσεις μπορεί να θεωρηθεί ότι
 χρησιμοποιείται μονοδιάστατος πυρήνας Gauss με τυπική απόκλιση που ορίζεται από
 την εξίσωση \eqref{standard_deviation:1} για κάθε διάσταση της απεικόνισης και
@@ -970,14 +971,187 @@ OAI ZIB.
     g(x) = \frac {1} {\sigma\sqrt{2\pi}} \exp{\left( -\frac{1}{2}
            \frac {x^2} {\sigma^2} \right)}
 \end{equation*}
+\fi
 
 Τέλος χρησιμοποιήθηκε μάσκα (\ref{reg:mask:1}) για την κινούμενη εικόνα. Η μάσκα
 αυτή αποτελείται από όλα τα εικονοστοιχεία της απεικόνισης που δεν ανήκουν στο
 υπόβαθρο. Με αυτόν τον τρόπο συνεισφέρουν μόνο τα εικονοστοιχεία των
 απεικονίσεων που ανήκουν σε βιολογικές ομάδες που πρόκειται να κατανεμηθούν.
 
+Στα \autoref{fig:registration_before:1}, \autoref{fig:registration_before:2} και
+\autoref{fig:registration_before:3} παρουσιάζονται οι ετικέτες δύο απεικονίσεων
+πριν την καταχώρηση. Στα \autoref{fig:registration_after:1},
+\autoref{fig:registration_after:2} και \autoref{fig:registration_after:3}
+παρουσιάζονται οι αντίστοιχες ετικέτες μετά την καταχώρηση. Από τα σχήματα αυτά
+παρατηρείται ότι οι αντίστοιχες ετικέτες ανάμεσα στις δύο απεικόνισης έχουν
+επικαλυφθεί αρκετά αλλά όχι τελείως. Αυτό οφείλεται στον αγχίγραμμο
+μετασχηματισμό που μπορεί να εφαρμόσει μετατόπιση, περιστροφή, αλλαγή κλίμακας
+και στρέβλωση. Ακόμα στο γεγονός ότι η μορφολογία την δύο γονάτων δεν είναι
+ίδια.
 
-% TODO: εικόνες
+\begin{figure}[H]
+    \centering
+
+    \begin{subfigure}[t]{0.4\linewidth}
+    \includegraphics[width=\linewidth]{original_label_registration_1.png}
+    \caption{Σταθερή απεικόνιση μετά την καταχώρηση}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.4\linewidth}
+    \includegraphics[width=\linewidth]{moving_label_before_registration_1.png}
+    \caption{Κινούμενη απεικόνιση μετά την καταχώρηση}
+    \end{subfigure}
+
+    \begin{subfigure}[t]{0.4\linewidth}
+    \includegraphics[width=\linewidth]{combination_label_before_registration_1.png}
+    \caption{Σταθερή και κινούμενη μετά την καταχώρηση}
+    \end{subfigure}
+
+    \caption{Τομή απεικονίσεων σταθερή, κινούμενης απεικόνισης και του
+             συνδυασμού τους μετά την μετά την καταχώρηση.}
+    \label{fig:registration_before:1}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+
+    \begin{subfigure}[t]{0.4\linewidth}
+    \includegraphics[width=\linewidth]{original_label_registration_1.png}
+    \caption{Σταθερή απεικόνιση μετά την καταχώρηση}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.4\linewidth}
+    \includegraphics[width=\linewidth]{moving_label_after_registration_1.png}
+    \caption{Κινούμενη απεικόνιση μετά την καταχώρηση}
+    \end{subfigure}
+
+    \begin{subfigure}[t]{0.4\linewidth}
+    \includegraphics[width=\linewidth]{combination_label_after_registration_1.png}
+    \caption{Σταθερή και κινούμενη μετά την καταχώρηση}
+    \end{subfigure}
+
+    \caption{Τομή απεικονίσεων σταθερή, κινούμενης απεικόνισης και του
+             συνδυασμού τους μετά την μετά την καταχώρηση.}
+    \label{fig:registration_after:1}
+\end{figure}
+
+% 2
+\begin{figure}[H]
+    \centering
+
+    \begin{subfigure}[t]{0.4\linewidth}
+    \includegraphics[width=\linewidth]{original_label_registration_2.png}
+    \caption{Σταθερή απεικόνιση μετά την καταχώρηση}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.4\linewidth}
+    \includegraphics[width=\linewidth]{moving_label_before_registration_2.png}
+    \caption{Κινούμενη απεικόνιση μετά την καταχώρηση}
+    \end{subfigure}
+
+    \begin{subfigure}[t]{0.4\linewidth}
+    \includegraphics[width=\linewidth]{combination_label_before_registration_2.png}
+    \caption{Σταθερή και κινούμενη μετά την καταχώρηση}
+    \end{subfigure}
+
+    \caption{Τομή απεικονίσεων σταθερή, κινούμενης απεικόνισης και του
+             συνδυασμού τους μετά την μετά την καταχώρηση.}
+    \label{fig:registration_before:2}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+
+    \begin{subfigure}[t]{0.4\linewidth}
+    \includegraphics[width=\linewidth]{original_label_registration_2.png}
+    \caption{Σταθερή απεικόνιση μετά την καταχώρηση}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.4\linewidth}
+    \includegraphics[width=\linewidth]{moving_label_after_registration_2.png}
+    \caption{Κινούμενη απεικόνιση μετά την καταχώρηση}
+    \end{subfigure}
+
+    \begin{subfigure}[t]{0.4\linewidth}
+    \includegraphics[width=\linewidth]{combination_label_after_registration_2.png}
+    \caption{Σταθερή και κινούμενη μετά την καταχώρηση}
+    \end{subfigure}
+
+    \caption{Τομή απεικονίσεων σταθερή, κινούμενης απεικόνισης και του
+             συνδυασμού τους μετά την μετά την καταχώρηση.}
+    \label{fig:registration_after:2}
+\end{figure}
+
+% 3
+\begin{figure}[H]
+    \centering
+
+    \begin{subfigure}[t]{0.4\linewidth}
+    \includegraphics[width=\linewidth]{original_label_registration_3.png}
+    \caption{Σταθερή απεικόνιση μετά την καταχώρηση}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.4\linewidth}
+    \includegraphics[width=\linewidth]{moving_label_before_registration_3.png}
+    \caption{Κινούμενη απεικόνιση μετά την καταχώρηση}
+    \end{subfigure}
+
+    \begin{subfigure}[t]{0.4\linewidth}
+    \includegraphics[width=\linewidth]{combination_label_before_registration_3.png}
+    \caption{Σταθερή και κινούμενη μετά την καταχώρηση}
+    \end{subfigure}
+
+    \caption{Τομή απεικονίσεων σταθερή, κινούμενης απεικόνισης και του
+             συνδυασμού τους μετά την μετά την καταχώρηση.}
+    \label{fig:registration_before:3}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+
+    \begin{subfigure}[t]{0.4\linewidth}
+    \includegraphics[width=\linewidth]{original_label_registration_3.png}
+    \caption{Σταθερή απεικόνιση μετά την καταχώρηση}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.4\linewidth}
+    \includegraphics[width=\linewidth]{moving_label_after_registration_3.png}
+    \caption{Κινούμενη απεικόνιση μετά την καταχώρηση}
+    \end{subfigure}
+
+    \begin{subfigure}[t]{0.4\linewidth}
+    \includegraphics[width=\linewidth]{combination_label_after_registration_3.png}
+    \caption{Σταθερή και κινούμενη μετά την καταχώρηση}
+    \end{subfigure}
+
+    \caption{Τομή απεικονίσεων σταθερή, κινούμενης απεικόνισης και του
+             συνδυασμού τους μετά την μετά την καταχώρηση.}
+    \label{fig:registration_after:3}
+\end{figure}
+
+
+\subsection{Επιλογή ατλάντων}
+
+Έπειτα από την καταχώρηση των ατλάντων επιλέγεται ένα υποσύνολο τους για να
+χρησιμοποιηθεί στην κατάτμηση. Αυτό γίνεται ώστε μειωθεί ο υπολογιστικός χρόνος
+που απαιτείται. Ως μετρική για επιλογή αυτή χρησιμοποιείται η μέση διαφορά
+τετραγώνων των εικονοστοιχείων των απεικονίσεων που δεν ανήκουν στο παρασκήνιο.
+Συγκεκριμένα αν $I$ είναι η σταθερή απεικόνιση, $I_i$ και $L_i$ μία κινούμενη
+απεικόνιση και οι ετικέτες της αντίστοιχα για τον $i$-οστό άτλαντα. Τα στοιχεία
+της κινούμενης εικόνας που δεν ανήκουν στο παρασκήνιο είναι:
+
+\begin{equation*}
+    p_i = \{\bm{x}| \bm{x} \in L_i, L_i > 0 \}
+\end{equation*}
+
+Οι ετικέτες $L_i$ έχουν την τιμή $0$ για το παρασκήνιο και για τις υπόλοιπες
+ακέραιους μεγαλύτερους του $0$. Έχοντας τα στοιχεία αυτά η μετρική ορίζεται ως:
+
+\begin{equation} \label{mse_selection:1}
+    mse_i = \frac {1} {\abs{p_i}} \sum_{x \in p_i} ( I(x) - I_i(x)  )^2
+\end{equation}
+
+Όπου $\abs{p_i}$ είναι ο αριθμός των στοιχείων που χρησιμοποιούνται για τον
+υπολογισμό της μετρικής.
+
+Έχοντας υπολογίσει την μετρική για όλους τους άτλαντες μέσω της
+\eqref{mse_selection:1}, αν ο επιθυμητός αριθμός ατλάντων είναι $N$, τότε
+επιλέγονται οι $N$ άτλαντες με την μικρότερη τιμή.
+
 
 
 \newpage
