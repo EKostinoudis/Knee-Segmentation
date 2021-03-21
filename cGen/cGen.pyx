@@ -28,270 +28,6 @@ cdef inline float _max(float a, float b) nogil:
 cdef inline float _abs(float a) nogil:
     return a if a >= 0.0 else -a
 
-'''
-@cython.boundscheck(False)
-@cython.wraparound(False)
-@cython.nonecheck(False)
-@cython.cdivision(True)
-cdef void _gapSafeCD(int yLen, int wLen, float[::1] R, float[::1] w, float[::1] XColsSqSum, float[::1] y, float[::1,:] X, double lamda, uint8_t[::1] activeSet, long long fce=10, double tolerance=1e-4, long long maxIterations=10000) nogil:
-    """
-    Calculates 1/2 ||X*w - y||^2_2 + lamda* ||w||_1
-    using iterative coordinate descent with gap safe rules.
-    """
-
-    # Increment, for blas use
-    cdef int inc = 1
-
-    cdef int iteration, elem, j, i
-    cdef float temp, tempMax, dualScale
-    cdef float prevW
-    cdef float dualityGap
-    cdef float primal, dual
-    cdef float normR, normW, radius
-
-    # Calculate the residual
-    # R = y - Xw
-    for i in range(yLen):
-        R[i] = y[i] - sdot(&wLen, &X[0,i], &inc, &w[0], &inc) 
-    # w = 0 so R = y
-    # scopy(&yLen, &y[0], &inc, &R[0], &inc)
-
-    # Initialize activeSet
-    for elem in range(wLen):
-        activeSet[elem] = 1
-
-    for iteration in range(maxIterations):
-        if iteration % fce == 0 and iteration != 0:
-            # max(X.T * R)
-            dualScale = FLT_MIN
-            for elem in range(wLen):
-                if activeSet[elem] != 1:
-                    continue
-
-                # X[:, elem].T * R
-                temp = sdot(&yLen, &R[0], &inc, &X[0, elem], &inc)
-
-                if temp > dualScale:
-                    dualScale = temp
-
-            # max(X.T * R, lamda)
-            if lamda > dualScale:
-                dualScale = lamda
-
-            # ||R||_2, second norm of R
-            normR = snrm2(&yLen, &R[0], &inc)
-
-            # ||w||_1, w[elem] >=0 for every elem
-            normW = 0
-            for elem in range(wLen):
-                normW += w[elem]
-
-            # primal = 1/2 ||X*w - y||_2^2 + lamda* ||w||_1
-            # 1/2    ||R||_2^2    + lamda* ||w||_1
-            primal = 0.5 * (normR ** 2) + lamda * normW 
-
-            # dual = lamda * theta*y - 1/2 * lamda^2 * ||theta||_2^2
-            # dual = (lamda / dualScale) * R^T*y - 1/2 * lamda^2 / dualScale^2 * ||-R||_2^2
-            # theta = -R / max(lamda, ||X^T*R||_inf)
-            temp = lamda / dualScale
-            dual = temp * sdot(&yLen, &R[0], &inc, &y[0], &inc) - 0.5 * ((temp * normR) ** 2)
-
-            dualityGap = primal - dual
-
-            if dualityGap <= tolerance:
-                break
-
-            # Gap safe radius
-            # radius = sqrt(2*dualityGap) / lamda
-            radius = sqrt(dualityGap) / lamda
-            
-            # Update active set
-            for elem in range(wLen):
-                if activeSet[elem] != 1:
-                    continue
-                """
-                # |X[:, elem].T * R| / dualScale
-                temp = fabs(sdot(&yLen, &R[0], &inc, &X[0, elem], &inc)) / dualScale
-
-                if temp >= 1:
-                    continue
-
-                # max(X[:,elem]
-                tempMax = fabs(X[0, elem])
-                for j in range(1, yLen):
-                    if fabs(X[j, elem]) > tempMax:
-                        tempMax = fabs(X[j, elem])
-
-                temp += radius * tempMax
-                """
-
-                #############
-                temp = radius * sqrt(XColsSqSum[elem])
-                if temp >= 1:
-                    continue
-                temp += fabs(sdot(&yLen, &R[0], &inc, &X[0, elem], &inc)) / dualScale
-                #############
-
-                if temp < 1:
-                    activeSet[elem] = 0
-                    prevW = w[elem]
-                    w[elem] = 0
-            
-                    # Calculate the new residual
-                    # R -= (w[elem] - prevW) * X[:, elem]
-                    temp = -(w[elem] - prevW)
-                    saxpy(&yLen, &temp, &X[0, elem], &inc, &R[0], &inc)
-
-        # Coordiante descent
-        for elem in range(wLen):
-            # X[:, elem] == 0
-            if activeSet[elem] != 1 or XColsSqSum[elem] == 0.0:
-                continue
-
-            # X[:, elem].T * R
-            # for use in soft-thresholding operator
-            temp = sdot(&yLen, &R[0], &inc, &X[0, elem], &inc)
-
-            # w[elem] + (temp / |X_j|_2^2)
-            temp /= XColsSqSum[elem]
-            temp += w[elem]
-
-            # Hold the previous w[elem] value
-            prevW = w[elem]
-
-            # Calculate soft-thresholding
-            # we want w >= 0
-            if temp >= 0:
-                w[elem] = _max(temp - lamda / XColsSqSum[elem], 0.0)
-            else:
-                w[elem] = 0.0
-
-            # Calculate the new residual
-            # R -= (w[elem] - prevW) * X[:, elem]
-            if w[elem] != 0.0:
-                temp = -(w[elem] - prevW)
-                saxpy(&yLen, &temp, &X[0, elem], &inc, &R[0], &inc)
-'''
-
-
-'''
-@cython.boundscheck(False)
-@cython.wraparound(False)
-@cython.nonecheck(False)
-@cython.cdivision(True)
-cdef void _elasticNet(int yLen, int wLen, float[::1] R, float[::1] w, float[::1] XColsSqSum, float[::1] y, float[::1,:] X, double alpha, double beta, double tolerance=1e-4, long long maxIterations=10000) nogil:
-    # Increment, for blas use
-    cdef int inc = 1
-
-    # Calculate the residual
-    # R = y - Xw
-    # for i in range(yLen):
-    #     R[i] = y[i] - sdot(&wLen, &X[0,i], &inc, &w[0], &inc) 
-    # w = 0 so R = y
-    scopy(&yLen, &y[0], &inc, &R[0], &inc)
-
-    cdef int iteration, elem
-    cdef float temp
-    cdef float prevW
-    cdef float wMax, dwMax, tempMax
-    cdef float dualityGap
-    cdef float initialTolerance = tolerance
-
-    tolerance *= sdot(&yLen, &y[0], &inc, &y[0], &inc)
-
-    for iteration in range(maxIterations):
-        wMax = 0.0
-        dwMax = 0.0
-        for elem in range(wLen):
-            # if all X[:, elem] == 0
-            if XColsSqSum[elem] == 0.0:
-                continue
-
-            # Remove the contribution of w[elem] to the residual
-            # R = y - X[:, not elem] * w[not elem]
-            # R += w[elem] * X[:, elem]
-            if w[elem] != 0.0:
-                saxpy(&yLen, &w[elem], &X[0, elem], &inc, &R[0], &inc)
-
-            # X[:, elem].T * R ; R (without the X[:, elem] * w[elem])
-            # for use in soft-thresholding operator
-            temp = sdot(&yLen, &R[0], &inc, &X[0, elem], &inc)
-
-            # Hold the previous w[elem] value
-            prevW = w[elem]
-
-            # Calculate soft-thresholding
-            # we want w >= 0
-            if temp >= 0:
-                w[elem] = _max(temp - alpha, 0.0) / (XColsSqSum[elem] + beta)
-            else:
-                w[elem] = 0.0
-
-            # Calculate the new residual
-            # R -= w[elem] * X[:, elem]
-            if w[elem] != 0.0:
-                temp = -w[elem]
-                saxpy(&yLen, &temp, &X[0, elem], &inc, &R[0], &inc)
-
-            # Maximum w
-            if w[elem] > wMax:
-                wMax = w[elem]
-
-            # Maximum absolute w change
-            temp = _abs(w[elem] - prevW)
-            if temp > dwMax:
-                dwMax = temp
-
-        if wMax == 0.0 or (dwMax / wMax) < initialTolerance or iteration == maxIterations:
-            # max(X.T * R - beta * w)
-            for i in range(wLen):
-                temp = sdot(&yLen, &R[0], &inc, &X[0, i], &inc) - beta * w[i]
-                if i != 0:
-                    if temp > tempMax:
-                        tempMax = temp
-                else:
-                    tempMax = temp
-
-            if(tempMax > alpha):
-                if beta != 0.0:
-                    # 1/2 * (R^T*R) * (1 + (alpha/tempMax)^2) + 
-                    # a * sum(w) - (alpha/tempMax) R^T*y +
-                    # 1/2 * beta * w^T^w * (1 + (alpha/tempMax)^2)
-                    temp = (alpha / tempMax) 
-                    temp *= temp
-                    temp += 1
-                    dualityGap = 0.5 * sdot(&yLen, &R[0], &inc, &R[0], &inc) * temp \
-                            + alpha * sasum(&wLen, &w[0], &inc) \
-                            - (alpha/tempMax) * sdot(&yLen, &R[0], &inc, &y[0], &inc) \
-                            + 0.5 * beta * temp * sdot(&wLen, &w[0], &inc, &w[0], &inc)
-                else:
-                    # 1/2 * (R^T*R) * (1 + (alpha/tempMax)^2) + 
-                    # a * sum(w) - (alpha/tempMax) R^T*y
-                    temp = (alpha / tempMax) 
-                    temp *= temp
-                    temp += 1
-                    dualityGap = 0.5 * sdot(&yLen, &R[0], &inc, &R[0], &inc) * temp \
-                            + alpha * sasum(&wLen, &w[0], &inc) \
-                            - (alpha/tempMax) * sdot(&yLen, &R[0], &inc, &y[0], &inc)
-            else:
-                if beta != 0.0:
-                    # (R^T*R) + a * sum(w) - R^T*y + beta * w^T^w
-                    dualityGap = sdot(&yLen, &R[0], &inc, &R[0], &inc) \
-                            + alpha * sasum(&wLen, &w[0], &inc) \
-                            - sdot(&yLen, &R[0], &inc, &y[0], &inc) \
-                            + beta * sdot(&wLen, &w[0], &inc, &w[0], &inc)
-                else:
-                    # (R^T*R) + a * sum(w) - R^T*y
-                    dualityGap = sdot(&yLen, &R[0], &inc, &R[0], &inc) \
-                            + alpha * sasum(&wLen, &w[0], &inc) \
-                            - sdot(&yLen, &R[0], &inc, &y[0], &inc)
-
-            if dualityGap < tolerance:
-                break
-'''
-
-
-            
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -566,7 +302,7 @@ cdef inline uint8_t _segmentationFloatMax(float[::1] w, uint8_t[::1] L,long long
     cdef float maxValue
     cdef int maxIndex
 
-    for i in range(numOfLabels):
+    for i in range(numOfLabels+1):
         sumAll[i] = 0.
 
     for i in range(wLen):
@@ -980,8 +716,8 @@ def applySPBM2(np.ndarray[np.uint16_t, ndim=3] segImage,
                         # print()
 
 
-                    # newSegmentation[x, y, z] = _segmentationFloat(_alpha, _L, numOfLabels)
-                    newSegmentation[x, y, z] = _segmentationFloatMax(_alpha, _L, numOfLabels)
+                    newSegmentation[x, y, z] = _segmentationFloat(_alpha, _L, numOfLabels)
+                    # newSegmentation[x, y, z] = _segmentationFloatMax(_alpha, _L, numOfLabels)
 
                 if verboseY:
                     # print("\tTime:", time() - tstartY)
@@ -996,23 +732,23 @@ def applySPBM2(np.ndarray[np.uint16_t, ndim=3] segImage,
 @cython.wraparound(False)
 @cython.nonecheck(False)
 cdef int _minResidual(uint16_t[::1,:] A, uint16_t[::1]B, uint8_t[::1] L, double[::1] alpha, int alphaLen, int BLen, long long numOfLabels):
-    # Increment, for blas use
-    cdef int inc = 1
-
     cdef double R[10]
-    cdef double temp
+    cdef double tempR[10]
     cdef int i, j
+    cdef uint8_t label
 
     for label in range(numOfLabels+1):
         R[label] = 0
 
-        for i in range(BLen):
-            temp = B[i]
-            for j in range(alphaLen):
-                if L[j] == label:    
-                    temp -= A[i,j] * alpha[j]
+    for i in range(BLen):
+        for label in range(numOfLabels+1):
+            tempR[label] = B[i]
 
-            R[label] += sqrt(temp * temp)
+        for j in range(alphaLen):
+            tempR[L[j]] -= A[i,j] * alpha[j]
+
+        for label in range(numOfLabels+1):
+            R[label] += tempR[label] * tempR[label]
 
     cdef double minRes = R[0]
     cdef int minPos = 0
@@ -1030,9 +766,11 @@ cdef int _minResidual(uint16_t[::1,:] A, uint16_t[::1]B, uint8_t[::1] L, double[
 cdef int _minResidualFloat(float[::1,:] A, float[::1,:] B, uint8_t[::1] L, float[::1] alpha, int alphaLen, int BLen, long long numOfLabels):
     cdef float R[10]
     cdef float tempR[10]
-    # cdef float temp
     cdef int i, j
     cdef uint8_t label
+
+    for label in range(numOfLabels+1):
+        R[label] = 0
 
     for i in range(BLen):
         for label in range(numOfLabels+1):
@@ -1042,20 +780,7 @@ cdef int _minResidualFloat(float[::1,:] A, float[::1,:] B, uint8_t[::1] L, float
             tempR[L[j]] -= A[i,j] * alpha[j]
 
         for label in range(numOfLabels+1):
-            R[label] += sqrt(tempR[label] * tempR[label])
-
-    '''
-    for label in range(numOfLabels+1):
-        R[label] = 0
-
-        for i in range(BLen):
-            temp = B[i, 0]
-            for j in range(alphaLen):
-                if L[j] == label:    
-                    temp -= A[i,j] * alpha[j]
-
-            R[label] += sqrt(temp * temp)
-    '''
+            R[label] += tempR[label] * tempR[label]
 
     cdef float minRes = R[0]
     cdef int minPos = 0
@@ -1574,8 +1299,8 @@ def applySPBMandSRCSpams(np.ndarray[np.uint16_t, ndim=3] segImage,
                                   ).A[:,0]
 
                     # SPBM segmentation
-                    # newSegmentationSPBM[x, y, z] = _segmentationFloat(_alpha, _L, numOfLabels, alphaLen)
-                    newSegmentationSPBM[x, y, z] = _segmentationFloatMax(_alpha, _L, numOfLabels, alphaLen)
+                    newSegmentationSPBM[x, y, z] = _segmentationFloat(_alpha, _L, numOfLabels, alphaLen)
+                    # newSegmentationSPBM[x, y, z] = _segmentationFloatMax(_alpha, _L, numOfLabels, alphaLen)
 
                     # SRC segmentation
                     newSegmentationSRC[x, y, z] = _minResidualFloat(_A, _B, _L, _alpha, alphaLen, BLen, numOfLabels)
@@ -1877,7 +1602,9 @@ def applyMV(np.ndarray[np.uint16_t, ndim=3] segImage,
                     newSegmentation[x, y, z] = L[0]
                     continue
 
-                newSegmentation[x, y, z] = _segmentationFloatMax(_alpha, _L, numOfLabels, alphaLen)
+                newSegmentation[x, y, z] = _segmentationFloat(_alpha, _L, numOfLabels, alphaLen)
+
+                # newSegmentation[x, y, z] = _segmentationFloatMax(_alpha, _L, numOfLabels, alphaLen)
 
 
             if verboseY:
