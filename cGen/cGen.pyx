@@ -1614,3 +1614,384 @@ def applyMV(np.ndarray[np.uint16_t, ndim=3] segImage,
 
     return newSegmentation
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+def applySPBMSpams(np.ndarray[np.uint16_t, ndim=3] segImage, 
+                         np.ndarray[np.uint16_t, ndim=4] images, 
+                         np.ndarray[np.uint8_t, ndim=4] labels,
+                         long long numOfLabels,
+                         int[::1] P,
+                         int[::1] N,
+                         double lassoTol=0.01,
+                         double lassoMaxIter=1e4, # Not used atm
+                         bint verboseX=True, 
+                         bint verboseY=True,
+                         long long xmin=-1,
+                         long long xmax=-1,
+                         long long ymin=-1,
+                         long long ymax=-1,
+                         long long zmin=-1,
+                         long long zmax=-1,
+                         long long numThreads=-1,
+                         long long lassoL=-1):
+    size = segImage.shape
+    sizeImages = images[0].shape
+    sizeLabels = labels[0].shape
+
+    assert (size[0] == sizeImages[0] and size[1] == sizeImages[1] and size[2] == sizeImages[2]), "Segmentation images and images has different size."
+    assert (size[0] == sizeLabels[0] and size[1] == sizeLabels[1] and size[2] == sizeLabels[2]), "Segmentation images and labels has different size."
+    assert (images.shape[0] == labels.shape[0]), "Images and labels number mismatch."
+    assert (numOfLabels >= 1), "Number of labels lower than one."
+    
+
+    # Allocate memory for the segmentation
+    cdef np.ndarray[np.uint8_t, ndim=3] newSegmentationSPBM = np.zeros(shape=(size[0], size[1], size[2]), dtype='uint8')
+    
+    # x range
+    if not (xmin >= N[0]//2 + P[0]//2 and xmin < size[0] - N[0]//2 - P[0]//2 - 1):
+        xmin = N[0]//2 + P[0]//2
+    if not (xmax >= N[0]//2 + P[0]//2 and xmax < size[0] - N[0]//2 - P[0]//2 - 1 and xmax > xmin):
+        xmax = size[0] - N[0]//2 - P[0]//2 - 1
+        
+    # y range
+    if not (ymin >= N[1]//2 + P[1]//2 and ymin < size[1] - N[1]//2 - P[1]//2 - 1):
+        ymin = N[1]//2 + P[1]//2
+    if not (ymax >= N[1]//2 + P[1]//2 and ymax < size[1] - N[1]//2 - P[1]//2 - 1 and ymax > ymin):
+        ymax = size[1] - N[1]//2 - P[1]//2 - 1
+        
+    # z range
+    if not (zmin >= N[2]//2 + P[2]//2 and zmin < size[2] - N[2]//2 - P[2]//2 - 1):
+        zmin = N[2]//2 + P[2]//2
+    if not (zmax >= N[2]//2 + P[2]//2 and zmax < size[2] - N[2]//2 - P[2]//2 - 1 and zmax > zmin):
+        zmax = size[2] - N[2]//2 - P[2]//2 - 1
+    
+    cdef int[3] v 
+    cdef int x, y, z
+    cdef int labelsLen = labels.shape[0]
+    cdef int LLen = labelsLen*N[0]*N[1]*N[2]
+    cdef int imagesLen = images.shape[0]
+    cdef int BLen = P[0]*P[1]*P[2]
+
+    cdef np.ndarray[np.uint8_t, ndim=1] L = np.zeros(shape=(LLen), dtype='uint8')
+    cdef uint8_t[::1] _L = L
+
+    cdef np.ndarray[np.float32_t, ndim=2] A = np.zeros(shape=(BLen, LLen), dtype=np.single, order='F')
+    cdef float[::1,:] _A = A
+
+    cdef np.ndarray[np.float32_t, ndim=2] B = np.zeros(shape=(BLen, 1), dtype=np.single, order='F')
+    cdef float[::1,:] _B = B
+
+
+    cdef uint8_t[:, :, :, ::1] _labels = labels
+    cdef uint16_t[:, :, :, ::1] _images = images
+    cdef uint16_t[:, :, ::1] _segImage = segImage
+
+
+    cdef uint8_t allSame
+    
+    cdef int alphaLen = A.shape[1]
+
+    # cdef np.ndarray[np.float32_t, ndim=1] alpha = np.zeros(shape=A.shape[1], dtype=np.single)
+    # cdef float[::1] _alpha = alpha
+    cdef float[::1] _alpha
+
+    cdef float maxArg, sumArg, colSum, sumSqred
+
+    cdef int ii, jj
+
+
+    for x in range(xmin, xmax):
+        v[0] = x
+
+        if verboseX:
+            tstartX = time()
+        for y in range(ymin, ymax):
+            v[1] = y
+
+            if verboseY:
+                print('\tX:', x, '\tY:', y , end=" ")
+                tstartY = time()
+
+            for z in range(zmin, zmax):
+                v[2] = z
+
+                _createL(_L, _labels, v, N)
+
+                allSame = 1
+                for ii in range(1,LLen):
+                    if _L[ii] != _L[0]:
+                        allSame = 0
+                        break
+
+                if allSame == 1:
+                    newSegmentationSPBM[x, y, z] = L[0]
+                    continue
+
+                _createAFloat(_A, _images, v, P, N)
+                _createBFloat2(_B, _segImage, v, P)
+
+                allSame = 1
+                for ii in range(BLen):
+                    if _B[ii, 0] != 0.:
+                        allSame = 0
+                        break
+
+                if allSame == 0:
+                    # Center, normalize A
+                    # for every column
+                    for ii in range(LLen):
+                        colSum = 0.
+                        for jj in range(BLen):
+                            colSum += A[jj,ii]
+
+                        colSum /= BLen
+                        sumSqred = 0.
+                        for jj in range(BLen):
+                            A[jj,ii] -= colSum
+                            sumSqred += A[jj,ii] * A[jj,ii]
+
+                        if sumSqred != 0.:
+                            for jj in range(BLen):
+                                A[jj,ii] /= sumSqred 
+
+                    # Center, normalize B
+                    colSum = 0.0
+                    for ii in range(BLen):
+                        colSum += B[ii, 0]
+                    colSum /= BLen
+                    sumSqred = 0.
+                    for ii in range(BLen):
+                        B[ii, 0] -= colSum
+                        sumSqred += B[ii, 0] * B[ii, 0]
+                    if sumSqred != 0.:
+                        for ii in range(BLen):
+                            B[ii, 0] /= sumSqred
+
+                    # max(A.T * B)
+                    maxArg = 0
+                    for ii in range(LLen):
+                        sumArg = 0
+                        for jj in range(BLen):
+                            sumArg += A[jj,ii] * B[jj, 0] 
+
+                        if sumArg > maxArg:
+                            maxArg = sumArg
+
+                    _alpha = spams.lasso(B, A, 
+                                   return_reg_path = False, 
+                                   lambda1 = maxArg * lassoTol, 
+                                   lambda2 = 0.,
+                                   pos = True,
+                                   mode = 2,
+                                   numThreads = numThreads,
+                                   L = lassoL,
+                                   max_length_path = <long long>lassoMaxIter
+                                  ).A[:,0]
+
+                    # SPBM segmentation
+                    newSegmentationSPBM[x, y, z] = _segmentationFloat(_alpha, _L, numOfLabels, alphaLen)
+                    # newSegmentationSPBM[x, y, z] = _segmentationFloatMax(_alpha, _L, numOfLabels, alphaLen)
+                else:
+                    # SPBM segmentation
+                    newSegmentationSPBM[x, y, z] = 0
+
+            if verboseY:
+                print("\tTime:", time() - tstartY)
+        if verboseX:
+                print("X:", x, "\tTime:", time() - tstartX)
+
+    return newSegmentationSPBM
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+def applySRCSpams(np.ndarray[np.uint16_t, ndim=3] segImage, 
+                         np.ndarray[np.uint16_t, ndim=4] images, 
+                         np.ndarray[np.uint8_t, ndim=4] labels,
+                         long long numOfLabels,
+                         int[::1] P,
+                         int[::1] N,
+                         double lassoTol=0.01,
+                         double lassoMaxIter=1e4, # Not used atm
+                         bint verboseX=True, 
+                         bint verboseY=True,
+                         long long xmin=-1,
+                         long long xmax=-1,
+                         long long ymin=-1,
+                         long long ymax=-1,
+                         long long zmin=-1,
+                         long long zmax=-1,
+                         long long numThreads=-1,
+                         long long lassoL=-1):
+    size = segImage.shape
+    sizeImages = images[0].shape
+    sizeLabels = labels[0].shape
+
+    assert (size[0] == sizeImages[0] and size[1] == sizeImages[1] and size[2] == sizeImages[2]), "Segmentation images and images has different size."
+    assert (size[0] == sizeLabels[0] and size[1] == sizeLabels[1] and size[2] == sizeLabels[2]), "Segmentation images and labels has different size."
+    assert (images.shape[0] == labels.shape[0]), "Images and labels number mismatch."
+    assert (numOfLabels >= 1), "Number of labels lower than one."
+    
+
+    # Allocate memory for the segmentation
+    cdef np.ndarray[np.uint8_t, ndim=3] newSegmentationSRC = np.zeros(shape=(size[0], size[1], size[2]), dtype='uint8')
+    
+    # x range
+    if not (xmin >= N[0]//2 + P[0]//2 and xmin < size[0] - N[0]//2 - P[0]//2 - 1):
+        xmin = N[0]//2 + P[0]//2
+    if not (xmax >= N[0]//2 + P[0]//2 and xmax < size[0] - N[0]//2 - P[0]//2 - 1 and xmax > xmin):
+        xmax = size[0] - N[0]//2 - P[0]//2 - 1
+        
+    # y range
+    if not (ymin >= N[1]//2 + P[1]//2 and ymin < size[1] - N[1]//2 - P[1]//2 - 1):
+        ymin = N[1]//2 + P[1]//2
+    if not (ymax >= N[1]//2 + P[1]//2 and ymax < size[1] - N[1]//2 - P[1]//2 - 1 and ymax > ymin):
+        ymax = size[1] - N[1]//2 - P[1]//2 - 1
+        
+    # z range
+    if not (zmin >= N[2]//2 + P[2]//2 and zmin < size[2] - N[2]//2 - P[2]//2 - 1):
+        zmin = N[2]//2 + P[2]//2
+    if not (zmax >= N[2]//2 + P[2]//2 and zmax < size[2] - N[2]//2 - P[2]//2 - 1 and zmax > zmin):
+        zmax = size[2] - N[2]//2 - P[2]//2 - 1
+    
+    cdef int[3] v 
+    cdef int x, y, z
+    cdef int labelsLen = labels.shape[0]
+    cdef int LLen = labelsLen*N[0]*N[1]*N[2]
+    cdef int imagesLen = images.shape[0]
+    cdef int BLen = P[0]*P[1]*P[2]
+
+    cdef np.ndarray[np.uint8_t, ndim=1] L = np.zeros(shape=(LLen), dtype='uint8')
+    cdef uint8_t[::1] _L = L
+
+    cdef np.ndarray[np.float32_t, ndim=2] A = np.zeros(shape=(BLen, LLen), dtype=np.single, order='F')
+    cdef float[::1,:] _A = A
+
+    cdef np.ndarray[np.float32_t, ndim=2] B = np.zeros(shape=(BLen, 1), dtype=np.single, order='F')
+    cdef float[::1,:] _B = B
+
+
+    cdef uint8_t[:, :, :, ::1] _labels = labels
+    cdef uint16_t[:, :, :, ::1] _images = images
+    cdef uint16_t[:, :, ::1] _segImage = segImage
+
+
+    cdef uint8_t allSame
+    
+    cdef int alphaLen = A.shape[1]
+
+    # cdef np.ndarray[np.float32_t, ndim=1] alpha = np.zeros(shape=A.shape[1], dtype=np.single)
+    # cdef float[::1] _alpha = alpha
+    cdef float[::1] _alpha
+
+    cdef float maxArg, sumArg, colSum, sumSqred
+
+    cdef int ii, jj
+
+
+    for x in range(xmin, xmax):
+        v[0] = x
+
+        if verboseX:
+            tstartX = time()
+        for y in range(ymin, ymax):
+            v[1] = y
+
+            if verboseY:
+                print('\tX:', x, '\tY:', y , end=" ")
+                tstartY = time()
+
+            for z in range(zmin, zmax):
+                v[2] = z
+
+                _createL(_L, _labels, v, N)
+
+                allSame = 1
+                for ii in range(1,LLen):
+                    if _L[ii] != _L[0]:
+                        allSame = 0
+                        break
+
+                if allSame == 1:
+                    newSegmentationSRC[x, y, z] = L[0]
+                    continue
+
+                _createAFloat(_A, _images, v, P, N)
+                _createBFloat2(_B, _segImage, v, P)
+
+                allSame = 1
+                for ii in range(BLen):
+                    if _B[ii, 0] != 0.:
+                        allSame = 0
+                        break
+
+                if allSame == 0:
+                    # Center, normalize A
+                    # for every column
+                    for ii in range(LLen):
+                        colSum = 0.
+                        for jj in range(BLen):
+                            colSum += A[jj,ii]
+
+                        colSum /= BLen
+                        sumSqred = 0.
+                        for jj in range(BLen):
+                            A[jj,ii] -= colSum
+                            sumSqred += A[jj,ii] * A[jj,ii]
+
+                        if sumSqred != 0.:
+                            for jj in range(BLen):
+                                A[jj,ii] /= sumSqred 
+
+                    # Center, normalize B
+                    colSum = 0.0
+                    for ii in range(BLen):
+                        colSum += B[ii, 0]
+                    colSum /= BLen
+                    sumSqred = 0.
+                    for ii in range(BLen):
+                        B[ii, 0] -= colSum
+                        sumSqred += B[ii, 0] * B[ii, 0]
+                    if sumSqred != 0.:
+                        for ii in range(BLen):
+                            B[ii, 0] /= sumSqred
+
+                    # max(A.T * B)
+                    maxArg = 0
+                    for ii in range(LLen):
+                        sumArg = 0
+                        for jj in range(BLen):
+                            sumArg += A[jj,ii] * B[jj, 0] 
+
+                        if sumArg > maxArg:
+                            maxArg = sumArg
+
+                    _alpha = spams.lasso(B, A, 
+                                   return_reg_path = False, 
+                                   lambda1 = maxArg * lassoTol, 
+                                   lambda2 = 0.,
+                                   pos = True,
+                                   mode = 2,
+                                   numThreads = numThreads,
+                                   L = lassoL,
+                                   max_length_path = <long long>lassoMaxIter
+                                  ).A[:,0]
+
+                    # SRC segmentation
+                    newSegmentationSRC[x, y, z] = _minResidualFloat(_A, _B, _L, _alpha, alphaLen, BLen, numOfLabels)
+                else:
+                    # SRC segmentation
+                    newSegmentationSRC[x, y, z] = 0
+
+            if verboseY:
+                print("\tTime:", time() - tstartY)
+        if verboseX:
+                print("X:", x, "\tTime:", time() - tstartX)
+
+    return newSegmentationSRC
+
