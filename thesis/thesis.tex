@@ -1,5 +1,6 @@
 \documentclass[a4paper,12pt]{article}
 
+% For content
 \usepackage[nottoc,numbib,notlof,notlot]{tocbibind}
 
 % No intetation
@@ -135,7 +136,8 @@
 
 \vspace*{\fill}
 
-{\large \today}
+% {\large \today}
+{\large Απρίλιος, 2021}
 
 \end{titlepage}
 
@@ -187,15 +189,30 @@
 
 \section*{Περίληψη}
 
-ΑΑΑ
-
-% TODO: this
-
+Οι εξελίξεις στη μηχανική μάθηση και συγκεκριμένα στην κατάτμηση εικόνων
+μέσω αυτής επιτρέπουν να λυθεί αυτόματα το πρόβλημα της κατάτμησης ιατρικών
+απεικονίσεων, το οποίο είναι χρονοβόρο και μπορεί να υλοποιηθεί μόνο από
+ειδικούς. Στην παρούσα διπλωματική εργασία, παρουσιάζονται τρεις μέθοδοι
+μηχανικής μάθησης κατάτμησης ιατρικών απεικονίσεων και συγκεκριμένα απεικονίσεων
+μαγνητικής τομογραφίας γονάτων. Οι ανατομικές δομές που χρησιμοποιήθηκαν είναι
+τα οστά και οι χόνδροι. Τα δεδομένα που χρησιμοποιήθηκαν τόσο για την εκπαίδευση
+όσο για την αξιολόγηση των προτεινόμενων μεθόδων προέρχονται από το
+Osteoarthritis Initiative Zuse Institute Berlin. Το αποτέλεσμα των μεθόδων
+(συντελεστής ομοιότητας Dice) για ετικέτα των χόνδρων κυμαινόταν μεταξύ
+0.82-0.85 και για την ετικέτα των οστών γύρο στο 0.96. 
 
 \section*{Abstract}
 
-ΑΑΑ
-% TODO: this
+Recent developments in machine learning and in particular in image segmentation
+using machine learning allows the problem of medical image registration, which
+is time consuming and only implemented by experts, to be solved. In this diploma
+thesis, three medical image segmentaion methods are presented using machine
+learing and in particular magnetic resonance imaging images of knees. The
+anatomical structures used are bones and cartilage. The data used for both
+training and evaluation of the proposed methods come from the Osteoarthritis
+Initiative Zuse Institute Berlin. The result of the methods (Dice similarity
+coefficient) for the cartilage label ranged between 0.82-0.85 and for the bone
+label around at 0.96. 
 
 \tableofcontents
 
@@ -235,12 +252,12 @@
 \subsubsection{Αντικείμενο διπλωματικής εργασίας}
 
 Στην διπλωματική εργασία εφαρμόστηκαν μέθοδοι κατάτμησης ιατρικών απεικονίσεων
-βάση ατλάντων με χρήση μηχανικής μάθησης \cite{Zhang:1, Tong:1, Coupe:1}. Οι
-απεικονίσεις αφορούν μαγνητικές τομογραφίες σε γόνατα και οι περιοχές κατάτμησης
-αποτελούνται από τους αρθρικούς χόνδρους και τα οστά. Τα δεδομένα που
-χρησιμοποιήθηκαν προέρχονται από το Osteoarthritis Initiative Zuse Institute
-Berlin(OAI ZIB). Οι μέθοδοι που χρησιμοποιήθηκαν προέρχονται από μεθόδους που
-έχουν χρησιμοποιηθεί για την κατάτμηση περιοχών του εγκεφάλου.
+βάση ατλάντων με χρήση μηχανικής μάθησης \cite{Zhang:1} \cite{Tong:1}
+\cite{Coupe:1}. Οι απεικονίσεις αφορούν μαγνητικές τομογραφίες σε γόνατα και οι
+περιοχές κατάτμησης αποτελούνται από τους αρθρικούς χόνδρους και τα οστά. Τα
+δεδομένα που χρησιμοποιήθηκαν προέρχονται από το Osteoarthritis Initiative Zuse
+Institute Berlin(OAI ZIB). Οι μέθοδοι που χρησιμοποιήθηκαν προέρχονται από
+μεθόδους που έχουν χρησιμοποιηθεί για την κατάτμηση περιοχών του εγκεφάλου.
 % TODO: references
 
 
@@ -909,7 +926,7 @@ OAI ZIB.
 \begin{enumerate}
     \setcounter{enumi}{-1} 
     \item Υπόβαθρο
-    \item Γόνατο
+    \item Οστό
     \item Χόνδρος
 \end{enumerate}
 
@@ -1285,7 +1302,7 @@ OAI ZIB.
 
 Για την κατάτμηση των απεικονίσεων χρησιμοποιήθηκαν τρεις μέθοδοι που έχουν
 χρησιμοποιηθεί για την κατάτμηση απεικονίσεων μαγνητικής τομογραφίας του
-εγκεφάλου \cite{Zhang:1, Tong:1, Coupe:1}.
+εγκεφάλου \cite{Zhang:1} \cite{Tong:1} \cite{Coupe:1}.
 
 \subsubsection{Αραιή μέθοδος βασισμένη σε τμήματα} \label{SPBM:1}
 
@@ -1551,7 +1568,7 @@ Dice για τις τιμές της παραμέτρου $\lambda$ που χρ�
     \centering
     \includegraphics[width=0.85\linewidth]{SPBM_Lasso_tolerance_Bone_plot.png}
     \caption{Μεταβολή της παραμέτρου $\lambda$ της αραιής μεθόδου βασισμένης σε
-             τμήματα για την ετικέτα του κόκαλου.}
+             τμήματα για την ετικέτα του οστού.}
     \label{fig:SPBM:lambda:2}
 \end{figure}
 
@@ -1589,7 +1606,7 @@ $\lambda = 0.1$.
     \centering
     \includegraphics[width=0.85\linewidth]{SRC_Lasso_tolerance_Bone_plot.png}
     \caption{Μεταβολή της παραμέτρου $\lambda$ της μεθόδου ταξινόμησης αραιής
-             αναπαράστασης για την ετικέτα του κόκαλου.}
+             αναπαράστασης για την ετικέτα του οστού.}
     \label{fig:SRC:lambda:2}
 \end{figure}
 
@@ -1653,7 +1670,7 @@ $\lambda = 0.1$.
     \centering
     \includegraphics[width=0.85\linewidth]{SPBM_N_Bone_plot.png}
     \caption{Μεταβολή του τμήματος αναζήτησης της αραιής μεθόδου βασισμένης σε
-             τμήματα για την ετικέτα του κόκαλου.}
+             τμήματα για την ετικέτα του οστού.}
     \label{fig:SPBM:N:2}
 \end{figure}
 
@@ -1706,7 +1723,7 @@ $[3,3,3]$ του τμήματος αναζήτησης.
     \centering
     \includegraphics[width=0.85\linewidth]{SRC_N_Bone_plot.png}
     \caption{Μεταβολή του τμήματος αναζήτησης της μεθόδου ταξινόμησης αραιής
-             αναπαράστασης για την ετικέτα του κόκαλου.}
+             αναπαράστασης για την ετικέτα του οστού.}
     \label{fig:SRC:N:2}
 \end{figure}
 
@@ -1761,7 +1778,7 @@ $[3,3,3]$ του τμήματος αναζήτησης.
     \includegraphics[width=0.85\linewidth]{PBSEP_N_Bone_plot.png}
     \caption{Μεταβολή του τμήματος αναζήτησης της μεθόδου κατάτμησης βασισμένη
              σε τμήματα με τη χρήση πληροφορία από ειδικούς για την ετικέτα του
-             κόκαλου.}
+             οστού.}
     \label{fig:PBSEP:N:2}
 \end{figure}
 
@@ -1817,7 +1834,7 @@ $[3,3,3]$ του τμήματος αναζήτησης.
     \centering
     \includegraphics[width=0.85\linewidth]{SPBM_P_Bone_plot.png}
     \caption{Μεταβολή του τμήματος χαρακτηριστικών της αραιής μεθόδου βασισμένης
-             σε τμήματα για την ετικέτα του κόκαλου.}
+             σε τμήματα για την ετικέτα του οστού.}
     \label{fig:SPBM:P:2}
 \end{figure}
 
@@ -1868,7 +1885,7 @@ $[3,3,3]$ του τμήματος αναζήτησης.
     \centering
     \includegraphics[width=0.85\linewidth]{SRC_P_Bone_plot.png}
     \caption{Μεταβολή του τμήματος χαρακτηριστικών της μεθόδου ταξινόμησης
-             αραιής αναπαράστασης για την ετικέτα του κόκαλου.}
+             αραιής αναπαράστασης για την ετικέτα του οστού.}
     \label{fig:SRC:P:2}
 \end{figure}
 
@@ -1921,7 +1938,7 @@ $[3,3,3]$ του τμήματος αναζήτησης.
     \includegraphics[width=0.85\linewidth]{PBSEP_P_Bone_plot.png}
     \caption{Μεταβολή του τμήματος χαρακτηριστικών της μεθόδου κατάτμησης
              βασισμένη σε τμήματα με τη χρήση πληροφορία από ειδικούς για την
-             ετικέτα του κόκαλου.}
+             ετικέτα του οστού.}
     \label{fig:PBSEP:P:2}
 \end{figure}
 
@@ -1976,7 +1993,7 @@ Dice για διάφορες τιμές του αριθμού των ατλάν�
     \centering
     \includegraphics[width=0.85\linewidth]{SPBM_Number_of_atlases_Bone_plot.png}
     \caption{Μεταβολή του αριθμού των ατλάντων της αραιής μεθόδου βασισμένης σε
-             τμήματα για την ετικέτα του κόκαλου.}
+             τμήματα για την ετικέτα του οστού.}
     \label{fig:SPBM:atlases:2}
 \end{figure}
 
@@ -2028,7 +2045,7 @@ Dice για διάφορες τιμές του αριθμού των ατλάν�
     \centering
     \includegraphics[width=0.85\linewidth]{SRC_Number_of_atlases_Bone_plot.png}
     \caption{Μεταβολή του αριθμού των ατλάντων της μεθόδου ταξινόμησης αραιής
-             αναπαράστασης για την ετικέτα του κόκαλου.}
+             αναπαράστασης για την ετικέτα του οστού.}
     \label{fig:SRC:atlases:2}
 \end{figure}
 
@@ -2082,7 +2099,7 @@ Dice για διάφορες τιμές του αριθμού των ατλάν�
     \includegraphics[width=0.85\linewidth]{PBSEP_Number_of_atlases_Bone_plot.png}
     \caption{Μεταβολή του αριθμού των ατλάντων της μεθόδου κατάτμησης βασισμένη
              σε τμήματα με τη χρήση πληροφορία από ειδικούς για την ετικέτα του
-             κόκαλου.}
+             οστού.}
     \label{fig:PBSEP:atlases:2}
 \end{figure}
 
@@ -2107,12 +2124,16 @@ Dice για όλες τις μεθόδους. Παρατηρείται, ιδίω
 ειδικούς έχει το καλύτερο αποτέλεσμα. Ακόμα, παρατηρείται ότι η αραιή μέθοδος
 βασισμένη σε τμήματα έχει καλύτερο αποτέλεσμα στην ετικέτα των χόνδρων από την
 μέθοδο ταξινόμησης αραιής αναπαράστασης, ενώ το αντίθετο συμβαίνει στην ετικέτα
-των κοκάλων σε πιο μικρό βαθμό. Το αποτέλεσμα για την ετικέτα του παρασκηνίου
+των οστών σε πιο μικρό βαθμό. Το αποτέλεσμα για την ετικέτα του παρασκηνίου
 είναι παρόμοιο για όλες τις μεθόδους. 
 
 Στο \autoref{table:final_reuslts:1} παρουσιάζονται οι τιμές της μέσης τιμής και
 της διαμέσου για όλες τις ετικέτες και μεθόδους. Ο πίνακας αυτός επιβεβαιώνει τα
 συμπεράσματα της προηγούμενης παραγράφου.
+
+Τέλος, στα \autoref{fig:final_dice_SPBM}, \autoref{fig:final_dice_SPBM}
+και \autoref{fig:final_dice_SPBM} παρουσιάζεται το χειρότερο, μέσο και καλύτερο
+αποτέλεσμα βάση της ετικέτας του χόνδρου για κάθε μέθοδο.
 
 
 \begin{figure}[H]
@@ -2127,7 +2148,7 @@ Dice για όλες τις μεθόδους. Παρατηρείται, ιδίω
     \centering
     \includegraphics[width=0.85\linewidth]{Dice_final_Bone_plot.png}
     \caption{Για όλες τις μεθόδους η τιμή του συντελεστή ομοιότητας Dice για την
-             ετικέτα του κόκαλου.}
+             ετικέτα του οστού.}
     \label{fig:dice_final:2}
 \end{figure}
 
@@ -2147,15 +2168,15 @@ Dice για όλες τις μεθόδους. Παρατηρείται, ιδίω
         \hline
         \hline
         \multirow{3}{4em}{SPBM} & Παρασκήνιο & 0.9914 & 0.9926 \\ 
-        & Κόκαλα & 0.9521 & 0.9556 \\ 
+        & Οστά & 0.9521 & 0.9556 \\ 
         & Χόνδροι & 0.8209 & 0.8352 \\ 
         \hline
         \multirow{3}{4em}{SRC} & Παρασκήνιο & 0.9914 & 0.9926 \\ 
-        & Κόκαλα & 0.9528 & 0.9585 \\ 
+        & Οστά & 0.9528 & 0.9585 \\ 
         & Χόνδροι & 0.8056 & 0.8187 \\ 
         \hline
         \multirow{3}{4em}{PBSEP} & Παρασκήνιο & 0.9916 & 0.9933 \\ 
-        & Κόκαλα & 0.956 & 0.9624 \\ 
+        & Οστά & 0.956 & 0.9624 \\ 
         & Χόνδροι & 0.8281 & 0.8451 \\ 
         \hline
     \end{tabular}
@@ -2163,6 +2184,72 @@ Dice για όλες τις μεθόδους. Παρατηρείται, ιδίω
              τις μεθόδους και ετικέτες.}
     \label{table:final_reuslts:1}
 \end{table}
+
+\begin{figure}[H]
+    \centering
+
+    \begin{subfigure}[b]{0.32\linewidth}
+    \includegraphics[width=\linewidth]{final_SPBM_worst.png}
+    \caption{Dice = 0.6614}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.32\linewidth}
+    \includegraphics[width=\linewidth]{final_SPBM_median.png}
+    \caption{Dice = 0.8352}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.32\linewidth}
+    \includegraphics[width=\linewidth]{final_SPBM_best.png}
+    \caption{Dice = 0.8604}
+    \end{subfigure}
+
+    \caption{Το χειρότερο (αριστερά), μέσο (μέση) και καλύτερο (δεξιά)
+             αποτέλεσμα, βάση της ετικέτας του χόνδρου, για την αραιή μέθοδο
+             βασισμένη σε τμήματα.}
+    \label{fig:final_dice_SPBM}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+
+    \begin{subfigure}[b]{0.32\linewidth}
+    \includegraphics[width=\linewidth]{final_SRC_worst.png}
+    \caption{Dice = 0.662}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.32\linewidth}
+    \includegraphics[width=\linewidth]{final_SRC_median.png}
+    \caption{Dice = 0.8187}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.32\linewidth}
+    \includegraphics[width=\linewidth]{final_SRC_best.png}
+    \caption{Dice = 0.8578}
+    \end{subfigure}
+
+    \caption{Το χειρότερο (αριστερά), μέσο (μέση) και καλύτερο (δεξιά)
+             αποτέλεσμα, βάση της ετικέτας του χόνδρου, για τη μέθοδο
+             ταξινόμησης αραιής αναπαράστασης.}
+    \label{fig:final_dice_SRC}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+
+    \begin{subfigure}[b]{0.32\linewidth}
+    \includegraphics[width=\linewidth]{final_SPEP_worst.png}
+    \caption{Dice = 0.6614}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.32\linewidth}
+    \includegraphics[width=\linewidth]{final_SPEP_median.png}
+    \caption{Dice = 0.8352}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.32\linewidth}
+    \includegraphics[width=\linewidth]{final_SPEP_best.png}
+    \caption{Dice = 0.8604}
+    \end{subfigure}
+
+    \caption{Το χειρότερο (αριστερά), μέσο (μέση) και καλύτερο (δεξιά)
+             αποτέλεσμα, βάση της ετικέτας του χόνδρου, για τη μέθοδο κατάτμησης
+             βασισμένης σε τμήματα με τη χρήση πληροφορία από ειδικούς.}
+    \label{fig:final_dice_SPEP}
+\end{figure}
 
 \subsubsection{Σύγκριση χρόνου εκτέλεσης}
 
@@ -2220,7 +2307,38 @@ i9-7940X CPU @ 3.10GHz} και \emph{126GB} μνήμη. Κάθε πείραμα 
 \end{figure}
 
 
+\section{Συμπεράσματα και μελλοντική εργασία}
 
+\subsection{Συμπεράσματα} \label{conclusions}
+
+Στο πλαίσιο της παρούσας διπλωματικής εργασίας, μελετήθηκε η κατάτμηση των
+αρθρικών χόνδρων και οστών απεικονίσεων μαγνητικής τομογραφίας στη περιοχή των
+γονάτων με μεθόδους μηχανικής μάθησης. Εφαρμόστηκαν τρεις διαφορετικές μέθοδοι
+\cite{Zhang:1} \cite{Tong:1} \cite{Coupe:1} που είχαν εφαρμοστεί στη περιοχή του
+εγκεφάλου. Και για τις τρεις μεθόδους χρησιμοποιήθηκε η ίδια μέθοδος
+προεπεξεργασίας και καταχώρησης.
+
+Τα αποτελέσματα και των τριών μεθόδων ήταν ικανοποιητικά και εξαρτώντας κυρίως
+από την πολυπλοκότητα της περιοχής (π.χ. τα αποτελέσματα για τα οστά ήταν πολύ
+καλύτερα σε σχέση με τα αποτελέσματα των χόνδρων σε όλες τις μεθόδους). Επίσης
+και στις τρεις μεθόδους υπήρχαν πειράματα που είχαν μικρές ακραίες τιμές (αρκετά
+κακό αποτέλεσμα σε σχέση με τα υπόλοιπα). Αυτό πιθανότατα οφείλεται στην είτε
+στην επιλογή των ατλάντων, είτε στην καταχώρηση.
+
+\subsection{Μελλοντική εργασία}
+
+Στη παρούσα διπλωματική εργασία μελετήθηκε μόνο η κατάτμηση των αρθρικών χόνδρων
+και οστών. Για το λόγο αυτό θα μπορούσαν να μελετηθούν περισσότερες ανατομικές
+δομές στη περιοχή των γονάτων όπως ο μηνίσκος και οι σύνδεσμοι. Επίσης, η
+κατηγορίες που χρησιμοποιήθηκαν θα μπορούσαν να χωριστούν σε περισσότερες
+υποκατηγορίες (π.χ. να χωριστεί η κατηγορία του χόνδρου σε χόνδρου του μηρού και
+της κνήμης) ώστε να υπάρχει μεγαλύτερη ακρίβεια.
+
+Θα μπορούσε να μελετηθεί περαιτέρω η διαδικασία της καταχώρησης και της επιλογή
+των ατλάντων ώστε να μειωθεί το φαινόμενο που αναφέρθηκε στο \ref{conclusions}.
+Επίσης, θα μπορούσε να μελετηθεί περαιτέρω η προεπεξεργασία των δεδομένων
+επειδή, δεν δόθηκε ιδιαίτερη σημασία στην παρούσα διπλωματική εργασία, ώστε να
+βελτιωθεί το αποτέλεσμα.
 
 \newpage
 
