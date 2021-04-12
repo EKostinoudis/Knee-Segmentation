@@ -13,6 +13,11 @@ clean.sh
 *.blg
 *.toc
 *.lot
+*.nav
+*.snm
 
 # allow
 !images/**
+
+# ignore
+.directory
