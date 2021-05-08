@@ -39,6 +39,9 @@
 \usepackage{amssymb}
 \newcommand{\R}{\mathbb{R}}
 
+% Multirow tables
+\usepackage{multirow}
+
 % Images
 \usepackage{graphicx}
 \graphicspath{{./images/}}
@@ -126,8 +129,8 @@
 \end{frame}
 
 \begin{frame}
-\frametitle{Table of Contents}
-\tableofcontents
+\frametitle{Δομή παρουσίασης}
+\tableofcontents[hideallsubsections]
 \end{frame}
 
 \section{Εισαγωγή}
@@ -704,6 +707,21 @@ Zuse Institute Berlin (OAI ZIB).Οι κλάσεις της κατάτμησης 
 
 \subsection{Επιλογή παραμέτρων}
 
+\begin{frame}
+\frametitle{Παράμετροι}
+Οι παράμετροι που είναι κοινοί για όλες τις μεθόδους είναι:
+
+\begin{enumerate}
+    \item Το μέγεθος της περιοχής αναζήτησης.
+    \item Το μέγεθος του patch.
+    \item Ο αριθμός των ατλάντων που χρησιμοποιείται στην κατάτμηση.
+\end{enumerate}
+
+Ακόμα, η αραιή μέθοδος βασισμένη σε τμήματα (SPBM) και η μέθοδος
+ταξινόμησης αραιής αναπαράστασης (SRC) έχουν την παράμετρο $\lambda$ του
+ελάχιστα απόλυτου τελεστή συρρίκνωσης και επιλογής (Lasso).
+\end{frame}
+
 
 \begin{frame}
 \frametitle{Διασταυρωμένη επικύρωση για την παράμετρο $\lambda$ του τελεστή
@@ -1164,6 +1182,117 @@ Lasso}
 \end{figure}
 
 \end{frame}
+
+
+\section{Σύγκριση μεθόδων}
+\subsection{Σύγκριση απόδοσης μεθόδων}
+
+\begin{frame}
+\frametitle{Σύγκριση απόδοσης μεθόδων}
+\framesubtitle{Διαγράμματα}
+
+\begin{figure}[H]
+    \centering
+
+    \begin{subfigure}[b]{0.42\linewidth}
+    \includegraphics[width=\linewidth]{Dice_final_Background_plot.png}
+    \caption{Παρασκήνιο}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.42\linewidth}
+    \includegraphics[width=\linewidth]{Dice_final_Bone_plot.png}
+    \caption{Οστά}
+    \end{subfigure}
+
+    \begin{subfigure}[b]{0.42\linewidth}
+    \includegraphics[width=\linewidth]{Dice_final_Cartilage_plot.png}
+    \caption{Χόνδροι}
+    \end{subfigure}
+\end{figure}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Σύγκριση απόδοσης μεθόδων}
+\framesubtitle{Στατιστικά}
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{|c|c||c|c|} 
+        \hline
+        Μέθοδος & Ετικέτα & Μέσος όρος & Διάμεσος \\ 
+        \hline
+        \hline
+        \multirow{3}{4em}{SPBM} & Παρασκήνιο & 0.9914 & 0.9926 \\ 
+        & Οστά & 0.9521 & 0.9556 \\ 
+        & Χόνδροι & 0.8209 & 0.8352 \\ 
+        \hline
+        \multirow{3}{4em}{SRC} & Παρασκήνιο & 0.9914 & 0.9926 \\ 
+        & Οστά & 0.9528 & 0.9585 \\ 
+        & Χόνδροι & 0.8056 & 0.8187 \\ 
+        \hline
+        \multirow{3}{4em}{PBSEP} & Παρασκήνιο & 0.9916 & 0.9933 \\ 
+        & Οστά & 0.956 & 0.9624 \\ 
+        & Χόνδροι & 0.8281 & 0.8451 \\ 
+        \hline
+    \end{tabular}
+    \caption{Μέσος όρος και διάμεσος του συντελεστή ομοιότητας Dice για όλες
+             τις μεθόδους και ετικέτες.}
+\end{table}
+
+\end{frame}
+
+
+\subsection{Σύγκριση χρόνου εκτέλεσης}
+
+
+\begin{frame}
+\frametitle{Σύγκριση χρόνου εκτέλεσης}
+
+\begin{figure}[H]
+    \centering
+
+    \begin{subfigure}[b]{0.38\linewidth}
+    \includegraphics[width=\linewidth]{Registration_time_plot.png}
+    \caption{Χρόνος καταχώρησης}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.38\linewidth}
+    \includegraphics[width=\linewidth]{Segmentation_time_plot.png}
+    \caption{Χρόνος κατάτμησης}
+    \end{subfigure}
+
+    \begin{subfigure}[b]{0.38\linewidth}
+    \includegraphics[width=\linewidth]{Total_time_plot.png}
+    \caption{Συνολικός χρόνος}
+    \end{subfigure}
+\end{figure}
+
+\tiny
+* Τα πειράματα έτρεξαν σε υπολογιστή με επεξεργαστή τον \emph{Intel(R) Core(TM)
+i9-7940X CPU @ 3.10GHz} και \emph{126GB} μνήμη. Κάθε πείραμα έτρεχε σε ένα νήμα
+(thread) και για τον υπολογισμό των χρόνων έτρεχαν παράλληλα \emph{14} νήματα
+(ένα για κάθε πείραμα).
+
+\end{frame}
+
+
+\section{Ερωτήσεις}
+
+
+\begin{frame}
+\frametitle{Ερωτήσεις}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=0.8\textheight]{question_mark}
+\end{figure}
+
+
+\end{frame}
+
+
+
+
 
 
 
