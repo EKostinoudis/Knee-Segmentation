@@ -27,5 +27,6 @@ The rest of the files are mainly for the segmentation and plotting.
 
 ## Requirements
 
-Apart from the requirements in the [requirements.txt](requirements.txt) file, u
-need also to install [SPAMS](http://thoth.inrialpes.fr/people/mairal/spams/).
+Apart from the requirements in the [requirements.txt](requirements.txt) file,
+you need also to install
+[SPAMS](http://thoth.inrialpes.fr/people/mairal/spams/).
