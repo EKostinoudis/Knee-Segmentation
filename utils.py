@@ -57,7 +57,6 @@ def shrinkImage(image, factor):
     Args:
         image: Image to be shrinked, SimpleItk image.
         factor: Factor of the expansion.
-        interpolator: Interpolator.
     Returns:
         Shrinked image.
     """
@@ -386,6 +385,7 @@ def registrationElastix(fixedImage, movingImage, outDir="."):
     Args:
         fixedImage: Fixed image of the registration, SimpleItk image.
         movingImage: Fixed image of the registration, SimpleItk image.
+        outDir: Output directory.
     Returns:
         The transform of the registration.
 
@@ -416,6 +416,7 @@ def registrationElastix2(fixedImage, movingImage, outDir="."):
     Args:
         fixedImage: Fixed image of the registration, SimpleItk image.
         movingImage: Fixed image of the registration, SimpleItk image.
+        outDir: Output directory.
     Returns:
         The transform of the registration.
 
@@ -450,6 +451,7 @@ def registrationElastixMask(fixedImage, movingImage, labels, outDir="."):
         movingImage: Fixed image of the registration, SimpleItk image.
         labels: Labels of the moving image, used to create a mask for the
             registration. SimpleItk image.
+        outDir: Output directory.
     Returns:
         The transform of the registration.
 
