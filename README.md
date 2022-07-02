@@ -30,3 +30,12 @@ The rest of the files are mainly for the segmentation and plotting.
 Apart from the requirements in the [requirements.txt](requirements.txt) file,
 you need also to install
 [SPAMS](http://thoth.inrialpes.fr/people/mairal/spams/).
+
+## Ruining segmentations in parallel
+
+The notebooks that performs the segmentation tasks can run in parallel by
+forking the process. This crashes the Jupiter notebook kernel, so in order to
+avoid the crash and run in parallel extract the code from the notebook to a
+python script (**.py** file) and run it. This was the easiest and simplest way
+to make it run in parallel. 
+
